@@ -179,3 +179,36 @@ export async function forgotPassword(
     throw new ApiError('Network error', 0);
   }
 }
+// POST /auth/reset-password
+export async function resetPassword(
+  token: string,
+  newPassword: string,
+  confirmPassword: string,
+  { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
+): Promise<void> {
+  try {
+    await instanceAxios.post(
+      '/auth/reset-password',
+      { token, new_password: newPassword, confirm_password: confirmPassword },
+      {
+        baseURL: API_URL,
+        signal,
+        timeout: timeoutMs,
+        headers: { 'Content-Type': 'application/json', accept: '*/*' },
+      }
+    );
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      const status = err.response?.status ?? 0;
+      const data = err.response?.data;
+      const message =
+        (data as any)?.message ||
+        (data as any)?.error ||
+        (status === 401 ? 'Invalid credentials' : err.message || 'Request failed');
+      throw new ApiError(message, status, data);
+    }
+    if (err?.name === 'AbortError') throw err;
+    throw new ApiError('Network error', 0);
+  }
+}
+

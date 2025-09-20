@@ -41,6 +41,7 @@ export type ProfileStackParamList = {
   ChangeLanguage: undefined;
   SettingOrganization: undefined;
   CreateOrganization: undefined;
+  MyOrganization: undefined;
   InviteMember: undefined;
   ManageMembers: undefined;
   Terms: undefined;

@@ -21,6 +21,8 @@ type Props = {
   onShowQR?: () => void;
   onOpenLanguage?: () => void;
   onOpenPassword?: () => void;
+  onOpenCreateOrg?: () => void;
+  onOpenMyOrganization?: () => void;
   onOpenTerms?: () => void;
   onOpenDeviceInfo?: () => void;
   onLogout?: () => void;
@@ -44,7 +46,7 @@ const SHADOW: StyleProp<ViewStyle> = Platform.select({
 }) as any;
 
 const ProfileLaloei: React.FC<Props> = ({
-  onBack, onEditProfile, onShowQR, onOpenLanguage, onOpenPassword, onOpenTerms, onLogout, onOpenDeviceInfo
+  onBack, onEditProfile, onShowQR, onOpenLanguage, onOpenPassword, onOpenCreateOrg, onOpenMyOrganization, onOpenTerms, onLogout, onOpenDeviceInfo
 }) => {
  const { t, i18n } = useTranslation();
 
@@ -92,11 +94,13 @@ const ProfileLaloei: React.FC<Props> = ({
   const orgName = profile?.orgs.find(o => o.id === orgId)?.name || 'องค์กรของฉัน';
 
   // Mock handlers (replace with real handlers as needed)
-  const onCreateOrg = () => { };
-  const onOpenOrgSettings = () => { };
   const onInviteMembers = () => { };
   const onOpenOrgProfile = () => { };
 
+  onOpenPassword = onOpenPassword || (() => nav.navigate('ChangePassword'));
+  onOpenLanguage = onOpenLanguage || (() => nav.navigate('ChangeLanguage'));
+  onOpenCreateOrg = onOpenCreateOrg || (() => nav.navigate('CreateOrganization'));
+  onOpenMyOrganization = onOpenMyOrganization || (() => nav.navigate('MyOrganization'));
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
@@ -179,6 +183,7 @@ const ProfileLaloei: React.FC<Props> = ({
           />
           <Divider />
           <MenuItem icon="🔐" title={t('profile.changePassword')} subtitle={t('profile.changePasswordSubtitle')} onPress={onOpenPassword} />
+          
           {/* create organization */}
           {!orgId ? (
             <>
@@ -187,7 +192,7 @@ const ProfileLaloei: React.FC<Props> = ({
                 icon="🏢"
                 title={t('profile.createOrganization')}
                 subtitle="ตั้งชื่อ • โดเมนย่อย • ทดลอง 30 วัน"
-                onPress={onCreateOrg}
+                onPress={onOpenCreateOrg}
               />
             </>
           ) : isOwnerOrAdmin ? (
@@ -198,7 +203,7 @@ const ProfileLaloei: React.FC<Props> = ({
                 title={`${t('profile.myOrganization')}`}
                 // subtitle="ข้อมูลองค์กร • สมาชิก • สิทธิ์อนุมัติ"
                 subtitle={orgName}
-                onPress={onOpenOrgSettings}
+                onPress={onOpenMyOrganization}
               />
               <Divider />
               <MenuItem

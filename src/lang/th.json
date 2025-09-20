@@ -22,6 +22,13 @@
         "backToLogin": "กลับไปที่การเข้าสู่ระบบ",
         "or": "หรือ"
     },
+    "tabs": {
+        "home": "หน้าหลัก",
+        "requests": "คำขอ",
+        "team": "ทีม",
+        "perks": "สวัสดิการ",
+        "profile": "โปรไฟล์"
+    },
     "language": {
         "language": "ภาษา",
         "english": "En",
@@ -29,7 +36,7 @@
         "selectLanguage": "เลือกภาษา"
     },
     "dashboard": {
-        "title": "แดชบอร์ด",
+        "title": "หน้าหลัก",
         "requestLeave": "+ ขอลา",
         "team": "ทีมงาน",
         "stats": {
@@ -39,7 +46,8 @@
             "thisMonthUsed": "สรุปเดือนนี้",
             "leave_annual": "ลาประจำปี",
             "leave_sick": "ลาป่วย",
-            "leave_other": "ลาอื่นๆ"
+            "leave_other": "ลาอื่นๆ",
+            "daysUsed": "วันลาที่ใช้ไป"
         },
         "entitlements": {
             "title": "ความคืบหน้าสิทธิ์วันลา",
@@ -204,6 +212,35 @@
         "refreshing": "กำลังรีเฟรช...",
         "deviceInfoUpdated": "อัปเดตข้อมูลอุปกรณ์สำเร็จ",
         "employeeId": "รหัสพนักงาน"
+    },
+    "leaveRequest": {
+        "requestLeave": "ขอลา",
+        "editLeave": "แก้ไขการลา",
+        "type": "ประเภทลา",
+        "selectType": "เลือกประเภทลา",
+        "from": "จากวันที่",
+        "to": "ถึงวันที่",
+        "halfDay": "ครึ่งวัน",
+        "fullDay": "เต็มวัน",
+        "startTime": "เวลาเริ่มต้น",
+        "endTime": "เวลาสิ้นสุด",
+        "reason": "เหตุผลการลา",
+        "attachFile": "แนบไฟล์ (ถ้ามี)",
+        "submit": "ส่งคำขอ",
+        "cancel": "ยกเลิก",
+        "selectDate": "เลือกวันที่",
+        "selectTime": "เลือกเวลา",
+        "loadingTypes": "กำลังโหลดประเภทลา...",
+        "submitting": "กำลังส่งคำขอ...",
+        "updating": "กำลังอัปเดตคำขอ...",
+        "deleteConfirm": "คุณแน่ใจหรือว่าต้องการลบคำขอนี้?",
+        "deleteSuccess": "ลบคำขอสำเร็จ",
+        "deleteError": "ไม่สามารถลบคำขอได้ โปรดลองอีกครั้ง",
+        "leaveSubmitted": "ส่งคำขอลาสำเร็จ",
+        "leaveUpdated": "อัปเดตคำขอลาสำเร็จ",
+        "errorLoadingTypes": "ไม่สามารถโหลดประเภทลาได้ โปรดลองอีกครั้ง",
+        "errorSubmitting": "ไม่สามารถส่งคำขอได้ โปรดลองอีกครั้ง",
+        "errorUpdating": "ไม่สามารถอัปเดตคำขอได้ โปรดลองอีกครั้ง",
+        "insufficientBalance": "คุณไม่มีวันลาพอสำหรับประเภทนี้"
     }
-
 }

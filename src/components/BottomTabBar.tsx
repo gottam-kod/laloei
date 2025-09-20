@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet, Platform } from "react-native";
 import { COLOR, SHADOW } from "../theme/theme";
 
+
 export type TabName = 'Home' | 'Requests' | 'Team' | 'Perks' | 'Profile' | 'LeaveHistory';
 
 type BottomTabBarProps = {

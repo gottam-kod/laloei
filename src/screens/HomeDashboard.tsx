@@ -44,15 +44,6 @@ const Progress = memo(({ value, tone = 'brand' }: ProgressProps) => {
     );
 });
 
-// type StatCardProps = { label: string; value: string; hint?: string; tone?: Tone };
-// const StatCard = memo(({ label, value, hint, tone = 'brand' }: StatCardProps) => (
-//     <View style={[styles.statCard, SHADOW.base]}>
-//         <Text style={styles.statLabel}>{label}</Text>
-//         <Text style={[styles.statValue, { color: toneColor(tone) }]}>{value}</Text>
-//         {!!hint && <Text style={styles.statHint}>{hint}</Text>}
-//     </View>
-// ));
-
 type RowItemProps = { title: string; meta: string; statusColor?: string; onPress?: () => void };
 const RowItem = memo(({ title, meta, statusColor = COLOR.dim, onPress }: RowItemProps) => (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.rowItem}>
@@ -136,18 +127,18 @@ const DashboardLaloei: React.FC<DashboardProps> = ({
             {/* HEADER: gradient เป็นพื้นหลัง ไม่กินทัช */}
             <View style={styles.headerContainer}>
               <View style={styles.headerRow}>
-                    <Text style={styles.greet}>แดชบอร์ด</Text>
+                    <Text style={styles.greet}>{t('dashboard.title')}</Text>
                     <View style={styles.badge}><Text style={styles.badgeText}>v1.0</Text></View>
                 </View>
                 <View style={styles.actionRow}>
                     <TouchableOpacity style={styles.primaryBtn} onPress={onRequestLeave}>
-                        <Text style={styles.primaryBtnText}>+ ขอลา</Text>
+                        <Text style={styles.primaryBtnText}>{t('dashboard.requestLeave')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.ghostBtn} onPress={onOpenTeam}>
-                        <Text style={styles.ghostBtnText}>ทีมงาน</Text>
+                        <Text style={styles.ghostBtnText}>{t('tabs.team')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.ghostBtn} onPress={openLogin}>
-                        <Text style={styles.ghostBtnText}>เข้าสู่ระบบ</Text>
+                        <Text style={styles.ghostBtnText}>{t('auth.login')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -156,18 +147,18 @@ const DashboardLaloei: React.FC<DashboardProps> = ({
                 <View style={styles.statsGrid}>
                     <StatCard
                         label={t('dashboard.stats.annualRemaining')}
-                        value={`${entitlement.annualTotal - entitlement.annualUsed}/${entitlement.annualTotal} ${t('days')}`}
+                        value={`${entitlement.annualTotal - entitlement.annualUsed}/${entitlement.annualTotal} ${t('common.days')}`}
                         hint={t('dashboard.stats.leave_annual')}
                         tone="ok"
                     />
                     <StatCard
                         label={t('dashboard.stats.sickRemaining')}
-                        value={`${entitlement.sickTotal - entitlement.sickUsed}/${entitlement.sickTotal} ${t('days')}`}
+                        value={`${entitlement.sickTotal - entitlement.sickUsed}/${entitlement.sickTotal} ${t('common.days')}`}
                         hint={t('dashboard.stats.leave_sick')}
                         tone="warn"
                     />
                     <StatCard label={t('dashboard.stats.pending')} value="2 รายการ" hint={t('status.PENDING')} tone="brand" />
-                    <StatCard label={t('dashboard.stats.thisMonthUsed')} value="3 วัน" hint={t('daysUsed')} tone="brand" />
+                    <StatCard label={t('dashboard.stats.thisMonthUsed')} value="3 วัน" hint={t('dashboard.stats.daysUsed')} tone="brand" />
                 </View>
 
                 <View style={[styles.card, SHADOW.base]}>
