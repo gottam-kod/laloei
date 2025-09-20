@@ -36,6 +36,7 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
   const nav = useNavigation<NavigationProp<RootStackParamList>>();
   const safeGoBack = nav.canGoBack() ? nav.goBack : undefined;
   const login = useAuthStore((s) => s.login);
+  const setProfile = useAuthStore((s) => s.setProfile);
 
 
   const [showPw, setShowPw] = useState(false);
@@ -68,6 +69,24 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
 
       const me = await getMe(res.access_token);
       login(res.access_token);
+
+      setProfile({
+        id: me.id,
+        email: me.email,
+        name: me.name ?? null,
+        locale: me.locale ?? null,
+        timezone: me.timezone ?? null,
+        emailVerified: me.email_verified_at !== null,
+        orgs: (me.memberships ?? []).map((m) => ({
+          id: m.org?.id,
+          name: m.org?.name,
+          subdomain: m.org?.subdomain ?? null,
+          role: m.role,
+        })),
+        orgId: (me.memberships && me.memberships.length > 0) ? me.memberships[0].org?.id : null,
+      });
+
+
 
       // ให้ parent นำทางต่อ
       await onLogin?.({ email, password, remember });

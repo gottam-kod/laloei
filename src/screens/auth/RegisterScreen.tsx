@@ -16,6 +16,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { AuthStackParamList } from '@/src/navigation/RootStackParamList';
 import { COLOR } from '@/src/theme/theme';
+import { register } from '@/src/connections/auth/authApi';
 
 const R = 16;
 
@@ -24,13 +25,13 @@ export default function RegisterScreen() {
   const { t, i18n } = useTranslation();
 
   // form state
-  const [firstName, setFirst] = useState('');
-  const [lastName, setLast] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState(''); // optional (E.164)
-  const [password, setPw] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [tos, setTos] = useState(false);
+  const [firstName, setFirst] = useState('โยธนภพ');
+  const [lastName, setLast] = useState('ทวี');
+  const [email, setEmail] = useState('org@gmail.com');
+  const [phone, setPhone] = useState('0959839411'); // optional (E.164)
+  const [password, setPw] = useState('P@ssw0rd123');
+  const [confirm, setConfirm] = useState('P@ssw0rd123');
+  const [tos, setTos] = useState(true);
   const [marketing, setMarketing] = useState(true);
 
   const [showPw, setShowPw] = useState(false);
@@ -51,7 +52,30 @@ export default function RegisterScreen() {
     try {
       setLoading(true);
       // TODO: ต่อ API จริง /auth/register
-      await new Promise((r) => setTimeout(r, 700));
+//       export async function register(
+//   payload: {
+//     firstName: string;
+//     lastName: string;
+//     email: string;
+//     phone?: string;
+//     password: string;
+//     confirmPassword: string;
+//     tosAgreed: boolean;
+//     marketingOptIn: boolean;
+//   },
+      await register({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        name: (firstName.trim() + ' ' + lastName.trim()).trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim() || undefined,
+        password,
+        confirmPassword: confirm,
+        tosAgreed: tos,
+        marketingOptIn: marketing,
+      });
+      // สำเร็จ
+      console.log('Registration successful');
 
       // ไปหน้า login
       nav.navigate('AuthEmailLogin');

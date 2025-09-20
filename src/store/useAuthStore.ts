@@ -6,11 +6,50 @@ import * as SecureStore from 'expo-secure-store';
 type AuthState = {
   token: string | null;
   /** ใช้เช็คว่า rehydrate เสร็จหรือยัง (กันกระพริบ/เงื่อนไขก่อน mount) */
+  profile: Profile | null;
   hydrated: boolean;
   login: (token: string) => void;
   logout: () => void;
   setHydrated: (v: boolean) => void;
+  setProfile: (p: Profile | null) => void;
 };
+type OrgSummary = {
+  id: string;
+  name: string;
+  subdomain?: string | null;
+  role: 'owner' | 'admin' | 'hr' | 'approver' | 'member';
+};
+
+type Profile = {
+  id: string;
+  email: string;
+  name?: string | null;
+  locale?: string | null;
+  timezone?: string | null;
+  emailVerified: boolean;
+  orgs: OrgSummary[];
+  orgId?: string | null; // org ปัจจุบัน (ถ้ามี)
+  lang?: 'th' | 'en'; // ภาษา UI ที่เลือก (ถ้ามี)
+};
+
+export function reduceUserToProfile(u: any): Profile {
+  const orgs: OrgSummary[] = (u.memberships ?? []).map((m: any) => ({
+    id: m.org?.id,
+    name: m.org?.name,
+    subdomain: m.org?.subdomain ?? null,
+    role: m.role,
+  }));
+
+  return {
+    id: u.id,
+    email: String(u.email).toLowerCase(),
+    name: u.name ?? null,
+    locale: u.locale ?? null,
+    timezone: u.timezone ?? null,
+    emailVerified: Boolean(u.email_verified_at),
+    orgs,
+  };
+}
 
 /** Storage ฝั่ง native (iOS/Android) — เข้ารหัสด้วย SecureStore */
 const secureStoreStorage: StateStorage = {
@@ -36,10 +75,20 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       token: null,
+      profile: null,
       hydrated: false,
       login: (token) => set({ token }),
-      logout: () => set({ token: null }),
+      logout: () => set({ token: null, profile: null }),
       setHydrated: (v) => set({ hydrated: v }),
+      setProfile: (p: Profile | null) => {
+        if (p) {
+          p.lang = p.lang || (p.locale || '').startsWith('th') ? 'th' : 'en';
+          set({ profile: p });
+        } else {
+          // ล้าง profile ทิ้ง (เช่น กรณี logout)
+          set({ profile: null });
+        }
+      },
     }),
     {
       name: 'auth-storage',

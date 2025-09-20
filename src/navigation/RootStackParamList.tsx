@@ -36,8 +36,17 @@ export type TeamStackParamList = {
 
 export type ProfileStackParamList = {
   Profile: undefined;
+  ProfileEdit: undefined;
   ChangePassword?: { email: string; code: string };
+  ChangeLanguage: undefined;
+  SettingOrganization: undefined;
+  CreateOrganization: undefined;
+  InviteMember: undefined;
+  ManageMembers: undefined;
+  Terms: undefined;
+  DeviceInfo: undefined;
 };
+
 
 /* ----- Auth ----- */
 export type AuthStackParamList = {
