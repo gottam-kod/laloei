@@ -1,35 +1,24 @@
-import React from 'react'
-import { StyleSheet, Dimensions, View } from 'react-native'
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLOR, RADIUS } from '../theme/theme';
 
-// import { theme } from '../theme/theme';
-const { width: deviceWidth, height: deviceHeight } = Dimensions.get('window');
-// const curveHeight = (deviceHeight * 1.5) / 4;
-
-type HeaderProps = {
-  children?: React.ReactNode;
-  [key: string]: any; // Accept any additional props
+type Props = {
+  title: string;
+  onBack?: () => void;
+  right?: React.ReactNode;
 };
-export default function Header({ children, ...props }: HeaderProps) {
 
+const Header: React.FC<Props> = ({ title, onBack, right }) => {
   return (
-    <View style={{ flex: 1 }} {...props}>
-      <View style={styles.container}>
-        {children}
+    <LinearGradient colors={[COLOR.primary, COLOR.primary2]} start={{x:0,y:0}} end={{x:1,y:1}} style={{ paddingTop: 52, paddingBottom: 16, paddingHorizontal: 16, borderBottomLeftRadius: RADIUS.lg, borderBottomRightRadius: RADIUS.lg }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <TouchableOpacity onPress={onBack}><Text style={{ color: 'white', fontWeight: '700' }}>{onBack ? '‹' : ''}</Text></TouchableOpacity>
+        <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }}>{title}</Text>
+        <View style={{ minWidth: 24 }}>{right}</View>
       </View>
-
-
-    </View>
+    </LinearGradient>
   );
+};
 
-}
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "lightblue",
-    borderBottomLeftRadius: deviceWidth * 10,
-    borderBottomRightRadius: deviceWidth * 10,
-    height: deviceHeight * 0.4,
-    width: deviceWidth * 1.8,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-});
+export default Header;

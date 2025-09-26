@@ -67,9 +67,12 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
         remember,
       } as any);
 
+
+      console.log('loginWithEmail res', res.access_token);
+
       const me = await getMe(res.access_token);
       login(res.access_token);
-
+     console.log('====================>  me', me);
       setProfile({
         id: me.id,
         email: me.email,
@@ -92,8 +95,10 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
       await onLogin?.({ email, password, remember });
       // หรือถ้าไม่มี ให้ไป Main
       await !onLogin && nav.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+      // await !onLogin && nav.reset({ index: 0, routes: [{ name: 'AuthStack' }] });
     } catch (e: any) {
       const msg = String(e?.message || '');
+      console.warn('AuthEmailLogin submit error', msg);
       if (msg.toLowerCase().includes('email must be an email')) {
         setError('รูปแบบอีเมลไม่ถูกต้อง');
       } else if (msg.toLowerCase().includes('unauthorized')) {

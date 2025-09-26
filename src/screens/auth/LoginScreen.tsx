@@ -1,14 +1,17 @@
-import React from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, Platform
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Background from '../../components/Background';
-import { useTranslation } from 'react-i18next';
+import Background from '@/src/components/Background';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as SecureStore from 'expo-secure-store';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Dimensions, Image, Platform,
+  StyleSheet,
+  Text, TouchableOpacity,
+  View
+} from 'react-native';
 import { AuthStackParamList } from '../../navigation/RootStackParamList';
 import { COLOR } from '../../theme/theme';
-import * as SecureStore from 'expo-secure-store';
 
 
 const { width } = Dimensions.get('window');
@@ -35,33 +38,27 @@ const AuthLandingScreen: React.FC<Props> = ({
   const { t, i18n } = useTranslation();
   const lang: 'th' | 'en' = (i18n.language || 'th').startsWith('th') ? 'th' : 'en';
   const nav = useNavigation<NavigationProp<AuthStackParamList>>();
-  // const withFallback = useFallbackNav<RootStackParamList>(nav);
-  // const switchLang = React.useCallback(async (l: 'th' | 'en') => {
-  //   const current = (i18n.language || '').startsWith('th') ? 'th' : 'en';
-  //   if (current === l) return;
-  //   try { await i18n.changeLanguage(l); } catch (e) { console.warn('changeLanguage error:', e); }
-  //   onSwitchLang?.(l);
-  // }, [i18n, onSwitchLang]);
 
+  const switchLang = React.useCallback(
+    async (l: 'th' | 'en') => {
+      const current =
+        (i18n.resolvedLanguage || i18n.language || '').startsWith('th')
+          ? 'th'
+          : 'en';
+      if (current === l) return;
 
-const switchLang = React.useCallback(
-  async (l: 'th' | 'en') => {
-    const current =
-      (i18n.resolvedLanguage || i18n.language || '').startsWith('th')
-        ? 'th'
-        : 'en';
-    if (current === l) return;
+      try {
+        await i18n.changeLanguage(l);             // เปลี่ยนภาษา (react-i18next จะ re-render ให้)
+        await SecureStore.setItemAsync('app-lang', l); // จำค่าไว้ในเครื่อง (iOS/Android)
+        onSwitchLang?.(l);
+      } catch (e) {
+        console.warn('changeLanguage error:', e);
+      }
+    },
+    [i18n, onSwitchLang]
+  );
 
-    try {
-      await i18n.changeLanguage(l);             // เปลี่ยนภาษา (react-i18next จะ re-render ให้)
-      await SecureStore.setItemAsync('app-lang', l); // จำค่าไว้ในเครื่อง (iOS/Android)
-      onSwitchLang?.(l);
-    } catch (e) {
-      console.warn('changeLanguage error:', e);
-    }
-  },
-  [i18n, onSwitchLang]
-);
+  onSignup = onSignup || (() => nav.navigate('Register'));
 
   const tagline =
     lang === 'th'
@@ -90,21 +87,21 @@ const switchLang = React.useCallback(
           style={styles.orangeWaveFill}
         />
 
-         {/* สวิตช์ภาษา pill มุมขวาล่าง */}
-      <View style={styles.langPill}>
-        <TouchableOpacity
-          style={[styles.langChip, lang === 'th' && styles.langActive]}
-          onPress={() => switchLang('th')}
-        >
-          <Text style={[styles.langText, lang === 'th' && styles.langTextActive]}>TH</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.langChip, lang === 'en' && styles.langActive]}
-          onPress={() => switchLang('en')}
-        >
-          <Text style={[styles.langText, lang === 'en' && styles.langTextActive]}>EN</Text>
-        </TouchableOpacity>
-      </View>
+        {/* สวิตช์ภาษา pill มุมขวาล่าง */}
+        <View style={styles.langPill}>
+          <TouchableOpacity
+            style={[styles.langChip, lang === 'th' && styles.langActive]}
+            onPress={() => switchLang('th')}
+          >
+            <Text style={[styles.langText, lang === 'th' && styles.langTextActive]}>TH</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.langChip, lang === 'en' && styles.langActive]}
+            onPress={() => switchLang('en')}
+          >
+            <Text style={[styles.langText, lang === 'en' && styles.langTextActive]}>EN</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* โลโก้ + ชื่อแอปกลางจอ */}
@@ -152,7 +149,7 @@ const switchLang = React.useCallback(
         </Text>
       </View>
 
-     
+
 
       {/* โลโก้พาร์ทเนอร์ (ถ้ามี) */}
       <View style={styles.partnerRow}>

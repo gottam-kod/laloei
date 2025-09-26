@@ -2,8 +2,10 @@ import axios from 'axios';
 import { instanceAxios } from '../axios';
 import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
 import { MeResponse } from '../../interface/auth/me.interface';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { navigationRef } from '../../navigation/navigationRef';
+import { useAuthStore } from '@/src/store/useAuthStore';
 
-const API_URL = 'http://localhost:3030/api/v1';
 
 // POST /auth/login
 export async function loginWithEmail(
@@ -15,13 +17,12 @@ export async function loginWithEmail(
       '/auth/login',                           // ใช้ path; baseURL ใส่ผ่าน config ด้านล่าง
       payload,                                 // <-- data (ไม่ใช่ body)
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
         headers: { 'Content-Type': 'application/json', accept: '*/*' },
       }
     );
-    console.log('res.data', res.data);
+    globalThis.__AUTH_TOKEN__ = res.data.access_token;
     return res.data;                           // axios parse ให้แล้ว
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
@@ -37,6 +38,27 @@ export async function loginWithEmail(
     throw new ApiError('Network error', 0);
   }
 }
+
+export async function logoutAndGoLogin(reason?: string) {
+  // ล้าง token ทั้งหมด
+  globalThis.__AUTH_TOKEN__ = undefined;
+  try { await AsyncStorage.removeItem('auth_token'); } catch {}
+
+  // ล้าง state ผู้ใช้ใน store (ถ้ามี)
+  useAuthStore.getState().logout?.();
+
+  // กลับหน้า Login
+  resetToLogin();
+}
+
+function resetToLogin() {
+  navigationRef.reset({
+    index: 0,
+    routes: [{ name: 'Login' }],
+  });
+}
+
+
 // GET /auth/me
 export async function getMe(
   token: string,
@@ -44,12 +66,10 @@ export async function getMe(
 ): Promise<MeResponse> {
   try {
     const res = await instanceAxios.get<MeResponse>('/auth/me', {
-      baseURL: API_URL,
+      headers: { Authorization: `Bearer ${token}` },
       signal,
       timeout: timeoutMs,
-      headers: { Authorization: `Bearer ${token}` },
     });
-    console.log('getMe res.data', res.data);
     return res.data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
@@ -72,12 +92,12 @@ export async function logout(
       '/auth/logout',
       {},
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    globalThis.__AUTH_TOKEN__ = undefined;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status ?? 0;
@@ -129,7 +149,6 @@ export async function register(
       '/auth/register',
       payload,
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
         headers: { 'Content-Type': 'application/json', accept: '*/*' },
@@ -159,7 +178,6 @@ export async function forgotPassword(
       '/auth/forgot-password',
       { email },
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
         headers: { 'Content-Type': 'application/json', accept: '*/*' },
@@ -191,7 +209,6 @@ export async function resetPassword(
       '/auth/reset-password',
       { token, new_password: newPassword, confirm_password: confirmPassword },
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
         headers: { 'Content-Type': 'application/json', accept: '*/*' },

@@ -20,7 +20,10 @@
         "email": "Email",
         "sendResetLink": "Send Reset Link",
         "backToLogin": "Back to Login",
-        "or": "OR"
+        "or": "OR",
+        "signup": "Sign Up",
+        "noAccount": "No account?",
+        "haveAccount": "Have an account?"
     },
     "tabs": {
         "home": "Home",

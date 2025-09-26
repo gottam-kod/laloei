@@ -1,18 +1,24 @@
 // screens/ProfileLaloei009.tsx
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  View, Text, StyleSheet, Platform, StatusBar,
-  TouchableOpacity, ScrollView,
-  StyleProp, ViewStyle, StyleSheet as RNStyleSheet,
-} from 'react-native';
+import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
-import { useAuthStore } from '../store/useAuthStore';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { ProfileStackParamList } from '../navigation/RootStackParamList';
-import LanguageSheet from '../components/LanguageSheet';
-import i18n from '../lang/i18n';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  Platform,
+  StyleSheet as RNStyleSheet,
+  ScrollView,
+  StatusBar,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
+import { ProfileStackParamList } from '../navigation/RootStackParamList';
+import { useAuthStore } from '../store/useAuthStore';
+import LanguageSheet from '../components/LanguageSheet';
 
 
 type Props = {
@@ -101,6 +107,16 @@ const ProfileLaloei: React.FC<Props> = ({
   onOpenLanguage = onOpenLanguage || (() => nav.navigate('ChangeLanguage'));
   onOpenCreateOrg = onOpenCreateOrg || (() => nav.navigate('CreateOrganization'));
   onOpenMyOrganization = onOpenMyOrganization || (() => nav.navigate('MyOrganization'));
+
+  onLogout = () => {
+    useAuthStore.getState().logout();
+    nav.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'AuthStack' }], // ✅ ใช้ 'AuthStack' ตามที่ตั้งไว้ใน RootStackParamList
+      }),
+    );
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F7FAFD' }}>

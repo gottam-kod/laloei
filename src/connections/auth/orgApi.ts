@@ -1,9 +1,7 @@
 import axios from 'axios';
 import { instanceAxios } from '../axios';
 import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
-import { MeResponse } from '../../interface/auth/me.interface';
-
-const API_URL = 'http://localhost:3030/api/v1';
+import { OrganizationModel } from '@/src/interface/organization';
 
 // POST /orgs
 export async function createOrganization(
@@ -33,22 +31,22 @@ export async function createOrganization(
   { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
 ): Promise<{ organization: any }> {
   try {
+    console.log('createOrganization payload', payload);
     const res = await instanceAxios.post<{ organization: any }>(
-      '/orgs',
+      '/organizations',
       payload,
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
-        headers: { 'Content-Type': 'application/json', accept: '*/*' },
       }
     );
-    console.log('createOrganization res.data', res.data);
+    // console.log('createOrganization res.data', res.data);
     return res.data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status ?? 0;
       const data = err.response?.data;
+      console.log('createOrganization error', { status, data });
       const message =
         (data as any)?.message ||
         (data as any)?.error ||
@@ -63,16 +61,15 @@ export async function createOrganization(
 // GET /orgs/my
 export async function listMyOrganizations(
   { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
-): Promise<{ organizations: any[] }> {
+): Promise<OrganizationModel[]> {
   try {
-    const res = await instanceAxios.get<{ organizations: any[] }>('/orgs/my', {
-      baseURL: API_URL,
+    const res = await instanceAxios.get<{ organizations: OrganizationModel[] }>('/organizations/my', {
       signal,
       timeout: timeoutMs,
       headers: { 'Content-Type': 'application/json', accept: '*/*' },
     });
     console.log('listMyOrganizations res.data', res.data);
-    return res.data;
+    return res.data.organizations;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status ?? 0;
@@ -98,10 +95,8 @@ export async function leaveOrganization(
       `/orgs/${orgId}/leave`,
       {},
       {
-        baseURL: API_URL,
         signal,
         timeout: timeoutMs,
-        headers: { 'Content-Type': 'application/json', accept: '*/*' },
       }
     );
     console.log('leaveOrganization success');
@@ -124,15 +119,14 @@ export async function leaveOrganization(
 export async function getOrganization(
   orgId: string,
   { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
-): Promise<{ organization: any }> {
+) {
     try {
-    const res = await instanceAxios.get<{ organization: any }>(`/orgs/${orgId}`, {
-      baseURL: API_URL,
+        console.log('getOrganization orgId', orgId);
+    const res = await instanceAxios.get<OrganizationModel>(`/organizations/${orgId}`, {
       signal,
       timeout: timeoutMs,
       headers: { 'Content-Type': 'application/json', accept: '*/*' },
     });
-    console.log('getOrganization res.data', res.data);
     return res.data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {

@@ -4,6 +4,7 @@ import {
   TouchableOpacity, FlatList, RefreshControl,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { COLOR_HISTORY as COLOR } from '../theme/theme'
 
 type LeaveStatus = 'approved' | 'pending' | 'rejected' | 'cancelled';
 
@@ -21,20 +22,6 @@ type Props = {
   onBack?: () => void;
   onCreateRequest?: () => void;
   onOpenDetail?: (id: string) => void;
-};
-
-const COLOR = {
-  bgTopA: '#E8F3FF',
-  bgTopB: '#F4FBFF',
-  brand:  '#2AA5E1',
-  dark:   '#0F172A',
-  dim:    '#607089',
-  card:   '#FFFFFF',
-  line:   '#EAF0F6',
-  success:'#20C997',
-  warn:   '#FFB020',
-  danger: '#F05252',
-  muted:  '#95A2B3',
 };
 
 const SHADOW = Platform.select({
@@ -174,7 +161,7 @@ const StatusBadge: React.FC<{ status: LeaveStatus }> = ({ status }) => {
 /* ============== Styles ============== */
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFD' },
+  container: { flex: 1, backgroundColor: '#fafafaff' },
 
   headerWrap: {
     paddingTop: Platform.OS === 'ios' ? 64 : 52,

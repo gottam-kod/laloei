@@ -7,6 +7,7 @@ import RootStackNavigator from './src/navigation/RootStackNavigator';
 import * as SecureStore from 'expo-secure-store';
 import * as Localization from 'expo-localization';
 import i18n from './src/lang/i18n'; // ไฟล์ตั้งค่า i18next ของคุณ
+import { navigationRef } from './src/navigation/navigationRef';
 
 
 
@@ -34,7 +35,7 @@ export default function App() {
     }, []);
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <NavigationContainer theme={theme}>
+            <NavigationContainer theme={theme} ref={navigationRef}>
                 <RootStackNavigator />
             </NavigationContainer>
         </GestureHandlerRootView>

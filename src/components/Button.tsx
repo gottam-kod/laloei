@@ -1,39 +1,40 @@
-import React from 'react'
-import { StyleSheet } from 'react-native'
-import { Button as PaperButton } from 'react-native-paper'
-import { theme } from '../theme/theme'
+import React from 'react';
+import { Text, TouchableOpacity, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
-type ButtonProps = {
-  mode?: 'text' | 'outlined' | 'contained';
-  style?: object;
-  [key: string]: any; // Accept any additional props
+import { COLOR, SHADOW, RADIUS } from '../theme/theme';
+
+type Props = {
+  title: string;
+  onPress?: () => void;
+  loading?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+  variant?: 'solid' | 'outline' | 'ghost';
 };
 
-export default function Button({ mode, style, ...props }: ButtonProps) {
+const Button: React.FC<Props> = ({ title, onPress, loading, style, textStyle, variant='solid' }) => {
+  if (variant === 'solid') {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={[{ borderRadius: RADIUS.md, overflow: 'hidden' }, style]}>
+        <LinearGradient colors={[COLOR.primary, COLOR.accent]} start={{x:0,y:0}} end={{x:1,y:1}} style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
+          {loading ? <ActivityIndicator/> : <Text style={[{ color: 'white', fontWeight: '700', textAlign: 'center' }, textStyle]}>{title}</Text>}
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  }
+  if (variant === 'outline') {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={[{ borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLOR.primary, paddingVertical: 12, paddingHorizontal: 16, backgroundColor: 'white' }, style]}>
+        {loading ? <ActivityIndicator/> : <Text style={[{ color: COLOR.primary, fontWeight: '700', textAlign: 'center' }, textStyle]}>{title}</Text>}
+      </TouchableOpacity>
+    );
+  }
   return (
-    <PaperButton
-      children={undefined} style={[
-        styles.button,
-        mode === 'outlined' && { backgroundColor: theme.colors.primary },
-        style,
-      ]}
-      labelStyle={styles.text}
-      mode={mode}
-      {...props}    />
-  )
-}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={[{ paddingVertical: 10, paddingHorizontal: 12, borderRadius: RADIUS.md }, style]}>
+      <Text style={[{ color: COLOR.text, fontWeight: '600', textAlign: 'center' }, textStyle]}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
 
-const styles = StyleSheet.create({
-  button: {
-    width: '100%',
-    marginVertical: 10,
-    paddingVertical: 2,
-    backgroundColor: theme.colors.primary,
-    borderRadius: 20,
-  },
-  text: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    lineHeight: 26,
-  },
-})
+export default Button;
