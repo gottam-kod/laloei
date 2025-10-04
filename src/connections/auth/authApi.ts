@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { instanceAxios } from '../axios';
-import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
-import { MeResponse } from '../../interface/auth/me.interface';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { navigationRef } from '../../navigation/navigationRef';
 import { useAuthStore } from '@/src/store/useAuthStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
+import { UserProfileResponse } from '../../interface/auth/me.interface';
+import { navigationRef } from '../../navigation/navigationRef';
+import { instanceAxios } from '../axios';
 
 
 // POST /auth/login
@@ -12,6 +12,7 @@ export async function loginWithEmail(
   payload: LoginRequest,                       // { email: string; password: string }
   { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
 ): Promise<LoginResponse> {
+
   try {
     const res = await instanceAxios.post<LoginResponse>(
       '/auth/login',                           // ใช้ path; baseURL ใส่ผ่าน config ด้านล่าง
@@ -63,13 +64,15 @@ function resetToLogin() {
 export async function getMe(
   token: string,
   { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
-): Promise<MeResponse> {
+): Promise<UserProfileResponse> {
   try {
-    const res = await instanceAxios.get<MeResponse>('/auth/me', {
+    const res = await instanceAxios.get<UserProfileResponse>('/auth/profile', {
       headers: { Authorization: `Bearer ${token}` },
       signal,
       timeout: timeoutMs,
     });
+
+    console.log("getMe res=", res.data);
     return res.data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {

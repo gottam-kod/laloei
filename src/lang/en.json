@@ -33,6 +33,7 @@
         "profile": "Profile"
     },
     "language": {
+        "title": "Change Language",
         "language": "Language",
         "english": "En",
         "thai": "ไทย",
@@ -156,6 +157,7 @@
 
     },
    "profile": {
+        "settings": "Settings",
         "title": "Profile",
         "editProfile": "Edit Profile",
         "viewQR": "View QR Code",

@@ -3,11 +3,13 @@ import React, { useMemo, useState } from 'react';
 import {
   View, Text, StyleSheet, Platform, StatusBar,
   TouchableOpacity, TextInput, FlatList,
+  SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import useSafeGoBack from '../navigation/useSafeGoBack';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/RootStackParamList';
+import { BackgroundFX } from '../components/Background';
 
 type Props = {
   onBack?: () => void;
@@ -81,7 +83,8 @@ const TeamScreen: React.FC<Props> = ({ onOpenMember, onCall, onChat }) => {
   }, [query, filter]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
+      <BackgroundFX />
       <StatusBar barStyle="dark-content" />
 
       {/* HEADER: gradient เป็นพื้นหลัง */}
@@ -153,7 +156,7 @@ const TeamScreen: React.FC<Props> = ({ onOpenMember, onCall, onChat }) => {
           />
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

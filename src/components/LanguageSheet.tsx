@@ -4,20 +4,22 @@ import { Modal, View, Pressable, Text, StyleSheet } from 'react-native';
 import { LOCALES } from '../utails/local';
 
 type Props = {
+  title?: string;
   visible: boolean;
   value: string; // 'th' | 'en'
+  action?: string; // ปุ่มปิด
   onClose: () => void;
   onSelect: (lang: string) => void;
 };
 
 
 
-export default function LanguageSheet({ visible, value, onClose, onSelect }: Props) {
+export default function LanguageSheet({title , visible, value, action, onClose, onSelect }: Props) {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={s.backdrop} onPress={onClose} />
       <View style={s.sheet}>
-        <Text style={s.title}>เปลี่ยนภาษา</Text>
+        <Text style={s.title}>{title}</Text>
         {LOCALES.map(item => {
           const active = item.lang === value;
           return (
@@ -27,7 +29,7 @@ export default function LanguageSheet({ visible, value, onClose, onSelect }: Pro
             </Pressable>
           );
         })}
-        <Pressable style={s.closeBtn} onPress={onClose}><Text style={s.closeText}>ปิด</Text></Pressable>
+        <Pressable style={s.closeBtn} onPress={onClose}><Text style={s.closeText}>{action}</Text></Pressable>
       </View>
     </Modal>
   );

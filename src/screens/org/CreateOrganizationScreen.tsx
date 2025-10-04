@@ -117,6 +117,8 @@ export default function CreateOrganizationScreen() {
     };
 
     try {
+      console.log('Creating organization with payload', payload);
+
       setSubmitting(true);
       const res = await createOrganization(payload);
       const org = res.organization;

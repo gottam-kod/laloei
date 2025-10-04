@@ -45,6 +45,7 @@ export default function MyOrganizationsScreen() {
     const [refreshing, setRefreshing] = useState(false);
     // --- fetchData: ดึงรายการองค์กร ---
     useEffect(() => {
+        console.log('MyOrganizationsScreen: fetching organizations...');
         fetchData();
     }, []);
     // --- fetchData: ดึงรายการองค์กร ---
@@ -52,8 +53,8 @@ export default function MyOrganizationsScreen() {
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            if (profile?.orgId) {
-                const org = await getOrganization(profile.orgId); // <- คืน OrganizationModel
+            if (profile?.org?.orgId) {
+                const org = await getOrganization(profile.org.orgId); // <- คืน OrganizationModel
                 console.log('Fetched single organization:', org);
                 setItems(org ? [org] : []);
             } else {
@@ -66,7 +67,7 @@ export default function MyOrganizationsScreen() {
         } finally {
             setLoading(false);
         }
-    }, [profile?.orgId]);
+    }, [profile?.org?.orgId]);
 
     // --- onRefresh: รีเฟรชด้วย fetchData ตรง ๆ (กันกรณี items ว่าง/ไม่ตรง type) ---
     const onRefresh = useCallback(async () => {

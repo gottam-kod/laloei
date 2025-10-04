@@ -4,13 +4,14 @@ import { RootStackParamList } from './RootStackParamList';
 import AuthStack from './AuthStack';
 import MainTabs from './MainTabs';
 import { useAuthStore, useIsLoggedIn } from '../store/useAuthStore';
+import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootStackNavigator() {
   const hydrated = useAuthStore((s) => s.hydrated);
-if (!hydrated) return null; // หรือ Splash ระหว่างรอ
-const isLoggedIn = useIsLoggedIn();
+  if (!hydrated) return null; // หรือ Splash ระหว่างรอ
+  const isLoggedIn = useIsLoggedIn();
   // const isSignedIn = false; // TODO: ผูกกับ auth จริง
   return (
     <Stack.Navigator
@@ -19,6 +20,17 @@ const isLoggedIn = useIsLoggedIn();
     >
       <Stack.Screen name="AuthStack" component={AuthStack} />
       <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen
+        name="VerifyEmail"
+        children={(navProps) => (
+          <VerifyEmailScreen
+            email={navProps.route.params?.email ?? ''}
+            onVerified={() => navProps.navigation.replace('MainTabs')}
+          />
+        
+        )}
+        options={{headerShown: true}}
+      />
     </Stack.Navigator>
   );
 }

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Platform,
   StyleSheet as RNStyleSheet,
+  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleProp,
@@ -16,9 +17,12 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import LanguageSheet from '../components/LanguageSheet';
 import { ProfileStackParamList } from '../navigation/RootStackParamList';
 import { useAuthStore } from '../store/useAuthStore';
-import LanguageSheet from '../components/LanguageSheet';
+import { router } from 'expo-router';
+import { BackgroundFX } from '../components/Background';
+import { SectionTitle } from '../components';
 
 
 type Props = {
@@ -29,6 +33,7 @@ type Props = {
   onOpenPassword?: () => void;
   onOpenCreateOrg?: () => void;
   onOpenMyOrganization?: () => void;
+  onInviteMembers: ()=> void;
   onOpenTerms?: () => void;
   onOpenDeviceInfo?: () => void;
   onLogout?: () => void;
@@ -52,7 +57,7 @@ const SHADOW: StyleProp<ViewStyle> = Platform.select({
 }) as any;
 
 const ProfileLaloei: React.FC<Props> = ({
-  onBack, onEditProfile, onShowQR, onOpenLanguage, onOpenPassword, onOpenCreateOrg, onOpenMyOrganization, onOpenTerms, onLogout, onOpenDeviceInfo
+ onEditProfile, onShowQR, onOpenLanguage, onOpenPassword, onOpenCreateOrg, onOpenMyOrganization, onInviteMembers, onOpenTerms, onLogout, onOpenDeviceInfo
 }) => {
  const { t, i18n } = useTranslation();
 
@@ -93,20 +98,27 @@ const ProfileLaloei: React.FC<Props> = ({
     annualRemain: '7/12', // ลาประจำปีคงเหลือ
     sickRemain: '8/10',   // ลาป่วยคงเหลือ
   };
+//  console.log("ProfileScreen profile=", profile);
+
+
 
   // Mock organization and permissions (replace with real data/props as needed)
-  const orgId = profile?.orgId ?? null;
-  const isOwnerOrAdmin = profile?.orgs.some(o => o.id === orgId && (o.role === 'owner' || o.role === 'admin')) ?? false;
-  const orgName = profile?.orgs.find(o => o.id === orgId)?.name || 'องค์กรของฉัน';
+  const orgId = profile?.org?.orgId ?? null;
+  const isOwnerOrAdmin = profile?.role?.some(o => o === 'ORGADMIN' || o === 'admin' || o === 'SUPPERADMIN') ?? false;
+  // const orgName = profile?.orgs.find(o => o.id === orgId)?.name || 'องค์กรของฉัน';
 
   // Mock handlers (replace with real handlers as needed)
-  const onInviteMembers = () => { };
+  // const onInviteMembers = () => { };
   const onOpenOrgProfile = () => { };
 
   onOpenPassword = onOpenPassword || (() => nav.navigate('ChangePassword'));
   onOpenLanguage = onOpenLanguage || (() => nav.navigate('ChangeLanguage'));
   onOpenCreateOrg = onOpenCreateOrg || (() => nav.navigate('CreateOrganization'));
-  onOpenMyOrganization = onOpenMyOrganization || (() => nav.navigate('MyOrganization'));
+  onOpenMyOrganization = onOpenMyOrganization || (() => {
+    console.log('Navigating to MyOrganization');
+    nav.navigate('MyOrganization');
+  });
+  onInviteMembers = onInviteMembers || (()=> nav.navigate('InviteMember'));
 
   onLogout = () => {
     useAuthStore.getState().logout();
@@ -119,31 +131,9 @@ const ProfileLaloei: React.FC<Props> = ({
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
+         <BackgroundFX />
       <StatusBar barStyle="dark-content" />
-
-      {/* HEADER: gradient เป็นพื้นหลัง ไม่กินทัช */}
-      <View style={styles.headerContainer}>
-        <LinearGradient
-          colors={[COLOR.bgTopA, COLOR.bgTopB]}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={RNStyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={onBack} hitSlop={HIT} style={styles.navLeft}>
-            <Text style={styles.back}>{'‹'}</Text>
-          </TouchableOpacity>
-
-          {/* ชื่อหน้า “ชิดขวา” ตามที่เคยขอ */}
-          <View style={styles.titleWrapRight}>
-            <Text style={styles.headerTitle} numberOfLines={1}>{t('profile.title')}</Text>
-          </View>
-
-          {/* พื้นที่ด้านขวาเผื่ออนาคต */}
-          <View style={styles.navRight} />
-        </View>
-      </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
         {/* การ์ดโปรไฟล์ */}
@@ -185,12 +175,16 @@ const ProfileLaloei: React.FC<Props> = ({
           <StatPill title={t('dashboard.stats.leave_sick')} value={`${leave.sickRemain} ${t('common.days')}`} tone="warn" />
         </View>
 
+        <SectionTitle title={t('profile.settings')} icon='settings-outline' />
+
         {/* การ์ดเมนูตั้งค่า */}
         <View style={[styles.menuCard, SHADOW]}>
           <MenuItem icon="🌐" title={t('profile.changeLanguage')} subtitle={currentLabel} onPress={handleOpenLanguage} />
           <LanguageSheet
+            title={t('language.title')}
             visible={openLang}
-            value={currentLangCode}               // 'th' | 'en'
+            value={currentLangCode} // 'th' | 'en'
+            action={t('common.close')}
             onSelect={async (lang) => {
               await switchLang(lang as 'th' | 'en');
               setOpenLang(false);
@@ -217,8 +211,8 @@ const ProfileLaloei: React.FC<Props> = ({
               <MenuItem
                 icon="🏢"
                 title={`${t('profile.myOrganization')}`}
-                // subtitle="ข้อมูลองค์กร • สมาชิก • สิทธิ์อนุมัติ"
-                subtitle={orgName}
+                subtitle="ข้อมูลองค์กร • สมาชิก • สิทธิ์อนุมัติ"
+                // subtitle={profile?.org?.orgName || 'องค์กรของฉัน'}
                 onPress={onOpenMyOrganization}
               />
               <Divider />
@@ -235,7 +229,7 @@ const ProfileLaloei: React.FC<Props> = ({
               <MenuItem
                 icon="🏢"
                 title={t('profile.myOrganization')}
-                subtitle={orgName}
+                subtitle={profile?.org?.orgName   || 'องค์กรของฉัน'}
                 onPress={onOpenOrgProfile}
               />
             </>
@@ -251,7 +245,8 @@ const ProfileLaloei: React.FC<Props> = ({
           <Text style={styles.logoutText}>{t('profile.logout')}</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+      </SafeAreaView>
+
   );
 };
 

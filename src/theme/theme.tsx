@@ -1,10 +1,30 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 import { Platform } from 'react-native';
 import { DefaultTheme } from 'react-native-paper'
 import { Tone } from '../interface/tone';
 
 export const toneColor = (t: Tone) =>
   t === 'ok' ? COLOR.ok : t === 'warn' ? COLOR.warn : t === 'danger' ? COLOR.danger : COLOR.brand;
+
+/* ============ Mini Theme (refined) ============ */
+export const UI = {
+  color: {
+    bg:'#F6F8FA', card:'#FFFFFF', line:'rgba(15,23,42,0.08)', text:'#0F172A', sub:'#6B7A90',
+    accent:'#0EA5A5', accentDark:'#0B8F86', muted:'#EEF2F6',
+    teal1:'#20C6BA', teal2:'#65D3C6',
+    chipBlue:'#EAF2FF', chipTeal:'#E6FBF4', chipGold:'#FFF6E5',
+  },
+  radius:{ md:12, lg:16, xl:20, pill:999 },
+  space:{ xs:6, sm:8, md:12, lg:16, xl:20 },
+  font:{ h1:18, h2:15, body:14, meta:12 },
+  shadowCard: {
+    shadowColor: '#0f172a',
+    shadowOpacity: Platform.OS === 'ios' ? 0.10 : 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  } as ViewStyle,
+};
 
 export const COLOR_HISTORY = {
   bgTopA: '#E8F3FF',

@@ -1,16 +1,24 @@
 // screens/AuthEmailLogin.tsx
+import { useAuthStore } from '@/src/store/useAuthStore';
 import { NavigationProp, useNavigation } from '@react-navigation/core';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, Platform, StatusBar,
-  TouchableOpacity, TextInput, ScrollView,
-  KeyboardAvoidingView, ActivityIndicator, Switch,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { RootStackParamList } from '../../navigation/RootStackParamList';
-import useSafeGoBack from '../../navigation/useSafeGoBack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getMe, loginWithEmail } from '../../connections/auth/authApi';
-import { useAuthStore } from '@/src/store/useAuthStore';
+import { RootStackParamList } from '../../navigation/RootStackParamList';
+import { BackgroundFX } from '@/src/components/Background';
 
 type Props = {
   onBack?: () => void;
@@ -20,31 +28,35 @@ type Props = {
 };
 
 const COLOR = {
-  bgTopA: '#E8F3FF',
-  bgTopB: '#F4FBFF',
-  brand: '#2AA5E1',
+  bgTopA: '#CFEAFF',
+  bgTopB: '#E9FEFF',
+  brandA: '#3c97c4ff',
+  brandB: '#90ddcb82',
   brandSoft: '#E0F2FF',
   dark: '#0F172A',
   dim: '#607089',
-  card: '#FFFFFF',
-  line: '#EAF0F6',
+  card: 'rgba(255, 255, 255, 0.5)',
+  line: 'rgba(255,255,255,0.65)',
   danger: '#E5484D',
 };
 const HIT = { top: 10, bottom: 10, left: 10, right: 10 };
 
 const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
   const nav = useNavigation<NavigationProp<RootStackParamList>>();
-  const safeGoBack = nav.canGoBack() ? nav.goBack : undefined;
+  const safeGoBack = () => {
+    if (nav.canGoBack()) nav.goBack();
+    else nav.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+  };
+
   const login = useAuthStore((s) => s.login);
   const setProfile = useAuthStore((s) => s.setProfile);
-
 
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [email, setEmail] = useState('admin@gmail.com');
+  const [email, setEmail] = useState('query_org@gmail.com');
   const [password, setPassword] = useState('P@ssw0rd123');
 
   const emailValid = validateEmail(email);
@@ -52,14 +64,12 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
   const canSubmit = emailValid && passValid && !loading;
 
   const submit = async () => {
-    if (!canSubmit) return;        // ✅ กันกดตอนยังไม่ผ่าน
+    if (!canSubmit) return;
     setError(null);
     try {
       setLoading(true);
-
       const emailNorm = email.trim().toLowerCase();
 
-      // ✅ ส่งทั้ง email และ username กัน API เก่า/ใหม่
       const res = await loginWithEmail({
         email: emailNorm,
         username: emailNorm,
@@ -67,71 +77,70 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
         remember,
       } as any);
 
-
-      console.log('loginWithEmail res', res.access_token);
-
       const me = await getMe(res.access_token);
+
       login(res.access_token);
-     console.log('====================>  me', me);
       setProfile({
         id: me.id,
         email: me.email,
         name: me.name ?? null,
         locale: me.locale ?? null,
         timezone: me.timezone ?? null,
-        emailVerified: me.email_verified_at !== null,
-        orgs: (me.memberships ?? []).map((m) => ({
-          id: m.org?.id,
-          name: m.org?.name,
-          subdomain: m.org?.subdomain ?? null,
-          role: m.role,
-        })),
-        orgId: (me.memberships && me.memberships.length > 0) ? me.memberships[0].org?.id : null,
+        department: me.department ?? null,
+        position: me.position ?? null,
+        avatarUri: me.avatarUri ?? null,
+        role: Array.isArray(me.role) ? me.role : typeof me.role === 'string' ? [me.role] : ['employee'],
+        menus: me.menus ?? [],
+        permissions: me.permissions ?? [],
+        org: me.org ?? null,
       });
 
-
-
-      // ให้ parent นำทางต่อ
       await onLogin?.({ email, password, remember });
-      // หรือถ้าไม่มี ให้ไป Main
-      await !onLogin && nav.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
-      // await !onLogin && nav.reset({ index: 0, routes: [{ name: 'AuthStack' }] });
+      if (!onLogin) nav.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
     } catch (e: any) {
       const msg = String(e?.message || '');
-      console.warn('AuthEmailLogin submit error', msg);
-      if (msg.toLowerCase().includes('email must be an email')) {
-        setError('รูปแบบอีเมลไม่ถูกต้อง');
-      } else if (msg.toLowerCase().includes('unauthorized')) {
-        setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
-      } else {
-        setError('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่');
-      }
+      if (msg.toLowerCase().includes('email must be an email')) setError('รูปแบบอีเมลไม่ถูกต้อง');
+      else if (msg.toLowerCase().includes('unauthorized')) setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      else setError('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFD' }} edges={['left', 'right', 'bottom']}>
+      {/* BG เต็มจอ */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <BackgroundFX />
+      </View>
+
       <StatusBar barStyle="dark-content" />
-      <View style={styles.headerContainer}>
+
+      {/* HEADER: ชิดขอบบนสุด + gradient + glass aura */}
+      <View style={styles.headerWrap}>
         <LinearGradient
           colors={[COLOR.bgTopA, COLOR.bgTopB]}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
-          pointerEvents="none"
         />
+        {/* Bubbles แสงนวล */}
+        <View style={[styles.bubble, { top: -30, left: -40, width: 180, height: 180, opacity: 0.35 }]} />
+        <View style={[styles.bubble, { top: 20, right: -60, width: 220, height: 220, opacity: 0.25 }]} />
+        <View style={[styles.bubbleSoft, { bottom: -70, left: -20, width: 260, height: 260, opacity: 0.22 }]} />
+
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => safeGoBack} hitSlop={HIT}>
-            <Text style={styles.back}>{'‹'}</Text>
+          <TouchableOpacity onPress={safeGoBack} hitSlop={HIT} style={styles.backBtn} accessibilityLabel="ย้อนกลับ">
+            <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>เข้าสู่ระบบ</Text>
-          <View style={{ width: 24 }} />
+          <View style={{ width: 40 }} />
         </View>
       </View>
 
+      {/* BODY: การ์ดแก้วใส ลอยทับหัว */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
+        <View style={styles.bodyContainer}>
           <View style={styles.card}>
             <Text style={styles.title}>เข้าสู่ระบบด้วยอีเมล</Text>
             <Text style={styles.sub}>กรอกอีเมลและรหัสผ่านเพื่อเข้าใช้งาน</Text>
@@ -144,11 +153,10 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
               keyboardType="email-address"
               placeholder="you@company.com"
               value={email}
-              onChangeText={(t) => { 
-                // ✅ กัน space เผลอพิมพ์
+              onChangeText={(t) => {
                 const s = t.replace(/\s/g, '');
-                setEmail(s); 
-                setError(null); 
+                setEmail(s);
+                setError(null);
               }}
               style={[styles.input, !!email && !emailValid && styles.inputError]}
               returnKeyType="next"
@@ -161,7 +169,10 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
               <TextInput
                 placeholder="อย่างน้อย 6 ตัวอักษร"
                 value={password}
-                onChangeText={(t) => { setPassword(t); setError(null); }}
+                onChangeText={(t) => {
+                  setPassword(t);
+                  setError(null);
+                }}
                 secureTextEntry={!showPw}
                 style={styles.inputFlex}
                 returnKeyType="done"
@@ -171,12 +182,19 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
                 <Text style={styles.togglePw}>{showPw ? 'ซ่อน' : 'แสดง'}</Text>
               </TouchableOpacity>
             </View>
-            {password.length > 0 && !passValid && <Text style={styles.error}>รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร</Text>}
+            {password.length > 0 && !passValid && (
+              <Text style={styles.error}>รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร</Text>
+            )}
 
             {/* Remember + Forgot */}
             <View style={styles.rowBetween}>
               <View style={styles.rememberRow}>
-                <Switch value={remember} onValueChange={setRemember} thumbColor="#fff" trackColor={{ true: COLOR.brandSoft, false: '#E5EAF1' }} />
+                <Switch
+                  value={remember}
+                  onValueChange={setRemember}
+                  thumbColor="#fff"
+                  trackColor={{ true: COLOR.brandSoft, false: '#E5EAF1' }}
+                />
                 <Text style={styles.rememberText}>จดจำการเข้าสู่ระบบ</Text>
               </View>
               <TouchableOpacity onPress={() => onForgot?.(email)} hitSlop={HIT}>
@@ -186,14 +204,25 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
 
             {!!error && <Text style={[styles.error, { marginTop: 8 }]}>{error}</Text>}
 
-            {/* Sign in */}
+            {/* Sign in (Gradient Pill) */}
             <TouchableOpacity
               style={[styles.primaryBtn, !canSubmit && { opacity: 0.6 }]}
               onPress={submit}
               activeOpacity={0.9}
               disabled={!canSubmit}
             >
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryText}>เข้าสู่ระบบ</Text>}
+              <LinearGradient
+                colors={[COLOR.brandA, COLOR.brandB]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.primaryGrad}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#814747ff" />
+                ) : (
+                  <Text style={styles.primaryText}>เข้าสู่ระบบ</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
 
             {/* Divider */}
@@ -203,22 +232,21 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
               <View style={styles.hr} />
             </View>
 
-            {/* Social / SSO */}
+            {/* CTA สมัครสมาชิก (Glass button) */}
             <TouchableOpacity style={styles.ssoBtn} onPress={onRegister} activeOpacity={0.9}>
-              <Text style={styles.ssoIcon}>🟢</Text>
+              <View style={styles.dot} />
               <Text style={styles.ssoText}>สมัครสมาชิกด้วย</Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default AuthEmailLogin;
 
 /* -------------- helpers -------------- */
-// ✅ อ่อนโยนพอ ไม่ตีตกอีเมลปกติ
 function validateEmail(v: string) {
   const s = v.trim();
   return /^\S+@\S+\.\S+$/.test(s);
@@ -226,27 +254,69 @@ function validateEmail(v: string) {
 
 /* -------------- styles -------------- */
 const styles = StyleSheet.create({
-  headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 64 : 52,
+  /* HEADER */
+  headerWrap: {
+    // ชิดขอบบนจริง (ไม่กัน safe-area บน): ใช้ paddingTop เอง
+    paddingTop: Platform.OS === 'ios' ? 44 : (StatusBar.currentHeight ?? 12),
     paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingBottom: 36,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     overflow: 'hidden',
-    position: 'relative',
   },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  back: { fontSize: 26, color: COLOR.dim, lineHeight: 26 },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  backBtn: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: 'rgba(97, 196, 199, 0.63)',
+    alignItems: 'center', justifyContent: 'center',
+    // soft shadow
+    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  backIcon: { fontSize: 22, color: '#3B536B', lineHeight: 22, marginTop: -2 },
   headerTitle: { fontSize: 18, fontWeight: '800', color: COLOR.dark },
 
+  bubble: {
+    position: 'absolute',
+    borderRadius: 999,
+    backgroundColor: '#8AD2FF',
+    filter: undefined as any, // RN ignore; keep TS calm
+  },
+  bubbleSoft: {
+    position: 'absolute',
+    borderRadius: 999,
+    backgroundColor: '#C8F9F0',
+  },
+
+  /* BODY */
+  bodyContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    // ดึงการ์ดขึ้นมาทับ header
+    marginTop: -22,
+  },
+
+  /* GLASS CARD */
   card: {
     backgroundColor: COLOR.card,
-    borderRadius: 20,
-    borderWidth: 1, borderColor: COLOR.line,
-    padding: 16,
-    marginTop: 14,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: COLOR.line,
+    padding: 18,
+    // glass shadow
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 6,
+    backdropFilter: undefined as any,
   },
-  title: { fontSize: 18, fontWeight: '900', color: COLOR.dark },
+  title: { fontSize: 19, fontWeight: '900', color: COLOR.dark },
   sub: { fontSize: 13, color: COLOR.dim, marginTop: 6 },
 
   label: { fontSize: 12.5, color: COLOR.dim, fontWeight: '700', marginTop: 16 },
@@ -254,52 +324,77 @@ const styles = StyleSheet.create({
   input: {
     marginTop: 6,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1, borderColor: COLOR.line,
-    paddingHorizontal: 12, paddingVertical: 12,
-    fontSize: 14, color: COLOR.dark,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E7EFF7',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: COLOR.dark,
   },
   inputRow: {
     marginTop: 6,
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1, borderColor: COLOR.line,
-    paddingHorizontal: 12, paddingVertical: 2,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E7EFF7',
+    paddingHorizontal: 14,
+    paddingVertical: 2,
   },
   inputFlex: { flex: 1, paddingVertical: 10, fontSize: 14, color: COLOR.dark },
   inputError: { borderColor: '#F5C2C7', backgroundColor: '#FFF5F6' },
 
-  togglePw: { color: COLOR.brand, fontWeight: '800' },
+  togglePw: { color: COLOR.brandA, fontWeight: '800' },
 
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
   rememberRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rememberText: { fontSize: 12.5, color: COLOR.dark, fontWeight: '600' },
-  link: { color: COLOR.brand, fontWeight: '900', fontSize: 13 },
+  link: { color: COLOR.brandA, fontWeight: '900', fontSize: 13 },
 
+  /* PRIMARY BUTTON (gradient pill) */
   primaryBtn: {
     marginTop: 18,
-    backgroundColor: COLOR.brand,
-    borderRadius: 14,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  primaryGrad: {
     paddingVertical: 14,
     alignItems: 'center',
+    borderRadius: 16,
+    shadowColor: '#69b2d6ff',
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
-  primaryText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  primaryText: { color: '#fff', fontWeight: '900', fontSize: 16, letterSpacing: 0.2 },
 
+  /* DIVIDER */
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18 },
-  hr: { flex: 1, height: 1, backgroundColor: COLOR.line },
+  hr: { flex: 1, height: 1, backgroundColor: '#EAF0F6' },
   dividerText: { fontSize: 12, color: COLOR.dim },
 
+  /* CTA REGISTER (glass) */
   ssoBtn: {
     marginTop: 12,
-    borderRadius: 12,
-    borderWidth: 1, borderColor: COLOR.line,
-    backgroundColor: '#F7FAFD',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E7EFF7',
+    backgroundColor: 'rgba(255,255,255,0.78)',
     paddingVertical: 12,
     alignItems: 'center',
-    flexDirection: 'row', justifyContent: 'center', gap: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
   },
-  ssoIcon: { fontSize: 16 },
+  dot: {
+    width: 14, height: 14, borderRadius: 7,
+    backgroundColor: '#4fd3d8ff',
+    shadowColor: '#4fc0caff', shadowOpacity: 0.6, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
   ssoText: { fontSize: 14, fontWeight: '800', color: COLOR.dark },
 
   error: { color: COLOR.danger, fontSize: 12.5, marginTop: 6 },

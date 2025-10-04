@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import * as SecureStore from 'expo-secure-store';
+import { MenuItem } from '../interface/auth/me.interface';
 
 type AuthState = {
   token: string | null;
@@ -13,11 +14,10 @@ type AuthState = {
   setHydrated: (v: boolean) => void;
   setProfile: (p: Profile | null) => void;
 };
-type OrgSummary = {
-  id: string;
-  name: string;
-  subdomain?: string | null;
-  role: 'owner' | 'admin' | 'hr' | 'approver' | 'member';
+
+type Organization = {
+  orgId: string;
+  orgName: string;
 };
 
 type Profile = {
@@ -26,30 +26,18 @@ type Profile = {
   name?: string | null;
   locale?: string | null;
   timezone?: string | null;
-  emailVerified: boolean;
-  orgs: OrgSummary[];
-  orgId?: string | null; // org ปัจจุบัน (ถ้ามี)
+  department?: string | null;
+  position?: string | null;
+  avatarUri?: string | null;
+  notificationCount?: number;
+  role?: string[]; // เช่น ['owner', 'admin']
   lang?: 'th' | 'en'; // ภาษา UI ที่เลือก (ถ้ามี)
-};
-
-export function reduceUserToProfile(u: any): Profile {
-  const orgs: OrgSummary[] = (u.memberships ?? []).map((m: any) => ({
-    id: m.org?.id,
-    name: m.org?.name,
-    subdomain: m.org?.subdomain ?? null,
-    role: m.role,
-  }));
-
-  return {
-    id: u.id,
-    email: String(u.email).toLowerCase(),
-    name: u.name ?? null,
-    locale: u.locale ?? null,
-    timezone: u.timezone ?? null,
-    emailVerified: Boolean(u.email_verified_at),
-    orgs,
-  };
+  menus?: MenuItem[]; // เมนูที่ผู้ใช้มีสิทธิ์เข้าถึง
+  permissions?: string[]; // สิทธิ์ที่ผู้ใช้มี
+  org?: Organization | null; // ชื่อบริษัท (ถ้ามี)
 }
+
+
 
 /** Storage ฝั่ง native (iOS/Android) — เข้ารหัสด้วย SecureStore */
 const secureStoreStorage: StateStorage = {
@@ -77,6 +65,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       profile: null,
       hydrated: false,
+      
       login: (token) => set({ token }),
       logout: () => set({ token: null, profile: null }),
       setHydrated: (v) => set({ hydrated: v }),

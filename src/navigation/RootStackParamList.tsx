@@ -3,27 +3,29 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type RootStackParamList = {
   AuthStack: undefined;
-  MainTabs: NavigatorScreenParams<MainTabParamList>;
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
+  VerifyEmail: { email?: string } | undefined; // ใช้ optional OK ถ้าหน้าจอรองรับค่าเปล่า
 };
 
-/* ----- Tabs ----- */
-export type MainTabParamList = {
-  HomeTab: NavigatorScreenParams<HomeStackParamList>;
-  HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
-  TeamTab: NavigatorScreenParams<TeamStackParamList> | undefined;
-  PerksTab: undefined;
-  ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
-};
-
-/* ----- Stacks under each tab ----- */
+/* ----- Home stack under HomeTab ----- */
 export type HomeStackParamList = {
   HomeDashboard: undefined;
   Requests: undefined;
-  LeaveRequest: undefined;
+  LeaveRequest: { mode?: 'create' } | undefined;
   ApprovalList: undefined;
   LeaveSummary: undefined;
   HRNews: undefined;
   CheckInScreen: undefined;
+  Notifications: undefined;
+};
+
+/* ----- Tabs ----- */
+export type MainTabParamList = {
+  HomeTab: NavigatorScreenParams<HomeStackParamList>; // ✅ ชี้ไปที่ HomeStack
+  HistoryTab: NavigatorScreenParams<HistoryStackParamList> | undefined;
+  TeamTab: NavigatorScreenParams<TeamStackParamList> | undefined;
+  PerksTab: undefined;
+  ProfileTab: NavigatorScreenParams<ProfileStackParamList> | undefined;
 };
 
 export type HistoryStackParamList = {
@@ -37,7 +39,7 @@ export type TeamStackParamList = {
 export type ProfileStackParamList = {
   Profile: undefined;
   ProfileEdit: undefined;
-  ChangePassword?: { email: string; code: string };
+  ChangePassword: { email?: string; code?: string } | undefined; // ✅ route key ไม่ optional
   ChangeLanguage: undefined;
   SettingOrganization: undefined;
   CreateOrganization: undefined;
@@ -57,5 +59,6 @@ export type AuthStackParamList = {
   AuthOtpVerify: { phone: string };
   ForgotPassword: { email?: string };
   ChangePassword: { email: string; code: string };
-  Register: undefined;   
+  Register: undefined;
+  VerifyEmail: { email: string };
 };

@@ -1,4 +1,4 @@
-import Background from '@/src/components/Background';
+
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { AuthStackParamList } from '../../navigation/RootStackParamList';
 import { COLOR } from '../../theme/theme';
+import { BackgroundFX } from '@/src/components/Background';
 
 
 const { width } = Dimensions.get('window');
@@ -71,7 +72,8 @@ const AuthLandingScreen: React.FC<Props> = ({
   const openLoginEmail = onLoginEmail || (() => nav.navigate('AuthEmailLogin'));
 
   return (
-    <Background>
+    <>
+    <BackgroundFX />
       {/* พื้นหลังไล่สีพาสเทลเต็มจอ */}
       <LinearGradient
         colors={[COLOR.bgTop, COLOR.bgBottom]}
@@ -156,7 +158,7 @@ const AuthLandingScreen: React.FC<Props> = ({
         <Image source={{ uri: 'https://via.placeholder.com/100x20?text=Partner+A' }} style={styles.partnerLogo} />
         <Image source={{ uri: 'https://via.placeholder.com/80x20?text=Partner+B' }} style={styles.partnerLogo} />
       </View>
-    </Background>
+      </>
   );
 };
 

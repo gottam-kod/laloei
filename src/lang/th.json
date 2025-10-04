@@ -34,6 +34,7 @@
         "profile": "โปรไฟล์"
     },
     "language": {
+        "title": "เปลี่ยนภาษา",
         "language": "ภาษา",
         "english": "En",
         "thai": "ไทย",
@@ -157,6 +158,7 @@
         "addComment": "เพิ่มความคิดเห็น"
     },
     "profile": {
+        "settings": "การตั้งค่า",
         "title": "โปรไฟล์",
         "editProfile": "แก้ไขโปรไฟล์",
         "viewQR": "ดู QR โค้ด",

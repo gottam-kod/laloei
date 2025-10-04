@@ -12,6 +12,7 @@ import AuthEmailLogin from '../screens/auth/AuthEmailLogin';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import { RootStackParamList } from './RootStackParamList';
 import RegisterScreen from '../screens/auth/RegisterScreen';
+import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen';
 
 /** ---------- Types ---------- */
 export type AuthStackParamList = {
@@ -20,6 +21,7 @@ export type AuthStackParamList = {
   AuthEmailLogin: { prefillEmail?: string } | undefined;
   ForgotPassword: { email?: string } | undefined;
   Register: undefined;
+  VerifyEmail: { email: string };
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -34,7 +36,6 @@ function AuthEmailLoginScreen() {
   return (
     <AuthEmailLogin
       onLogin={({ email }) => {
-        console.log('login success', email);
         // ไปหน้า main app ที่ Root (ชื่อ route ตามที่คุณตั้งไว้)
         // ตัวอย่าง: Root มี "MainTabs"
         rootNav.navigate?.('MainTabs');

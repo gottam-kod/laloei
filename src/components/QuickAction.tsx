@@ -1,118 +1,83 @@
-// src/components/QuickAction.tsx
-import React, { memo, useMemo, useRef } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  Platform,
-  Animated,
-  StyleSheet,
-  GestureResponderEvent,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-// ถ้ามีธีมของคุณเองให้เอาอันนี้มาใช้แทน fallback ด้านล่าง
-// import { COLOR as THEME } from "@/src/theme/theme";
+import React, { memo, ReactNode } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+import { UI } from '../theme/theme';
 
-export type QuickActionProps = {
+export type QuickAction = {
+  badge: ReactNode;
+  key: string;
   label: string;
-  onPress?: (e: GestureResponderEvent) => void;
-  icon?: keyof typeof Ionicons.glyphMap; // อย่างใดอย่างหนึ่ง
-  emoji?: string;                         // อย่างใดอย่างหนึ่ง
-  disabled?: boolean;
-  glass?: boolean;                        // true = พื้นหลังโปร่งใส
-  size?: number;                          // ขนาดกล่องไอคอน (ค่าเริ่ม 58)
-  color?: string;                         // สีไอคอน/อีโมจิ
-  style?: any;                            // สไตล์หุ้มรอบ component
-  testID?: string;
+  icon: string;         // Ionicons name e.g. "document-text-outline"
+  onPress?: () => void;
 };
 
-// --- Fallback theme (ถ้าไม่มี THEME) ---
-const COLOR = {
-  text: "#1e293b",
-  glass: "rgba(255,255,255,0.6)",
-  glassBorder: "rgba(255,255,255,0.75)",
+type Props = {
+  actions: QuickAction[];
+  columns?: 2 | 3 | 4;  // จำนวนคอลัมน์ต่อแถว
+  shape?: 'rounded' | 'circle';
 };
 
-// เงา cross-platform นุ่ม ๆ
-const shadow = (r = 6) =>
-  Platform.select({
-    ios: {
-      shadowColor: "#000",
-      shadowOpacity: 0.08,
-      shadowRadius: r,
-      shadowOffset: { width: 0, height: Math.ceil(r / 2) },
-    },
-    android: { elevation: Math.ceil(r / 2) },
-    default: {},
-  }) as any;
 
-const QuickAction: React.FC<QuickActionProps> = ({
-  label,
-  onPress,
-  icon,
-  emoji,
-  disabled,
-  glass = true,
-  size = 58,
-  color = COLOR.text,
-  style,
-  testID,
-}) => {
-  const scale = useRef(new Animated.Value(1)).current;
-
-  const onPressIn = () =>
-    Animated.spring(scale, { toValue: 0.95, useNativeDriver: true, friction: 6 }).start();
-  const onPressOut = () =>
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, friction: 6 }).start();
-
-  const content = useMemo(() => {
-    if (emoji) return <Text style={[styles.emoji, { fontSize: size * 0.45 }]}>{emoji}</Text>;
-    return <Ionicons name={icon ?? "sparkles-outline"} size={Math.round(size * 0.41)} color={color} />;
-  }, [emoji, icon, size, color]);
-
+// QuickActions
+export const QuickActions = memo(function QuickActions({items,onPress}:{items:QuickAction[]; onPress?:(k:string)=>void;}){
   return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: !!disabled }}
-      accessibilityLabel={label}
-      android_ripple={{ color: "#00000010", borderless: false }}
-      onPress={onPress}
-      onPressIn={onPressIn}
-      onPressOut={onPressOut}
-      disabled={disabled}
-      style={[styles.wrap, style, disabled && { opacity: 0.5 }]}
-    >
-      <Animated.View
-        style={[
-          {
-            transform: [{ scale }],
-            width: size,
-            height: size,
-            borderRadius: size * 0.28,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: glass ? COLOR.glass : "#fff",
-            borderWidth: glass ? StyleSheet.hairlineWidth : 0,
-            borderColor: glass ? COLOR.glassBorder : "transparent",
-          },
-          shadow(6),
-        ]}
-      >
-        {content}
-      </Animated.View>
-
-      <Text style={styles.label} numberOfLines={1}>
-        {label}
-      </Text>
-    </Pressable>
+    <View style={S.qaRow}>
+      {items.map(it=>(
+        <Pressable
+          key={it.key}
+          onPress={()=>onPress?.(it.key)}
+          style={({pressed})=>[
+            S.tileFloat, pressed ? S.liftPressed : S.liftIdle
+          ]}
+          android_ripple={{color:'#e9eef4'}}
+        >
+          <View style={S.tileIconWrap}>
+            <LinearGradient colors={['#FFFFFF','#F7FBFF']} start={{x:0,y:0}} end={{x:1,y:1}} style={S.tileIcon}>
+              <Ionicons name={it.icon} size={18} color={UI.color.text}/>
+            </LinearGradient>
+          </View>
+          <View style={{flexDirection:'row', alignItems:'center', gap:6}}>
+            <Text style={S.tileTxt} numberOfLines={1}>{it.label}</Text>
+            {it.badge ? <View style={S.badgeSmall}><Text style={S.badgeSmallTxt}>{it.badge}</Text></View> : null}
+          </View>
+        </Pressable>
+      ))}
+    </View>
   );
-};
+});
 
-export default memo(QuickAction);
+function getItemSize(columns: number) {
+  const pct = 100 / columns - 2; // เว้นช่องว่างเล็กน้อย
+  return { width: `${pct}%` as any };
+}
 
-const styles = StyleSheet.create({
-  wrap: { alignItems: "center", width: 78, gap: 6 },
-  emoji: { lineHeight: 26 },
-  label: { fontSize: 12, fontWeight: "600", color: COLOR.text },
+const S = StyleSheet.create({
+   /* Quick */
+   qaRow:{ flexDirection:'row', flexWrap:'wrap', gap:UI.space.md, justifyContent:'space-between' },
+   tile:{ width:'48%', paddingVertical:16, paddingHorizontal:14, backgroundColor:UI.color.card, borderRadius:UI.radius.xl, borderWidth:1, borderColor:UI.color.line, ...UI.shadowCard },
+   tileIconWrap:{ marginBottom:8 },
+   tileTxt:{ fontSize:UI.font.body, fontWeight:'800', color:UI.color.text },
+   badgeSmall:{ height:18, paddingHorizontal:6, backgroundColor:'#ef4444', borderRadius:UI.radius.pill, alignItems:'center', justifyContent:'center' },
+   badgeSmallTxt:{ color:'#fff', fontSize:11, fontWeight:'800' },
+
+  tileFloat:{
+    backgroundColor:'rgba(42, 197, 236, 0.28)',
+    borderRadius:UI.radius.xl,
+    paddingVertical:16, paddingHorizontal:14,
+    borderWidth:1, borderColor:'rgba(255,255,255,0.65)',
+    shadowColor:'#0f172a', shadowOpacity:0.08, shadowRadius:12, elevation:2,
+    width:'48%',
+  },
+  /* Lift effect */
+  liftIdle:{ transform:[{translateY:0}], shadowOpacity:0.08, elevation:2 },
+  liftPressed:{ transform:[{translateY: -1}], shadowOpacity:0.12, elevation:4 },
+
+ /* ปรับของเดิมเล็กน้อยให้เข้าธีมลอย */
+  tileIcon:{
+    width:40, height:40, borderRadius:12,
+    alignItems:'center', justifyContent:'center',
+    borderWidth:1, borderColor:'rgba(15,23,42,0.06)',
+    backgroundColor:'#FFFFFF'
+  },
 });
