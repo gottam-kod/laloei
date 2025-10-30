@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/src/store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
 import { UserProfileResponse } from '../../interface/auth/me.interface';
 import { navigationRef } from '../../navigation/navigationRef';
@@ -66,13 +66,16 @@ export async function getMe(
   { signal, timeoutMs = 10000 }: { signal?: AbortSignal; timeoutMs?: number } = {}
 ): Promise<UserProfileResponse> {
   try {
+
+
     const res = await instanceAxios.get<UserProfileResponse>('/auth/profile', {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+         Authorization: `Bearer ${token}`,
+      },
       signal,
       timeout: timeoutMs,
     });
 
-    console.log("getMe res=", res.data);
     return res.data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
@@ -113,26 +116,6 @@ export async function logout(
   }
 }
 
-// เพิ่มฟังก์ชันอื่นๆ เช่น register, forgotPassword ตามต้องการ
-// POST /auth/register
-// POST /auth/forgot-password
-// เป็นต้น
-
-//   {
-//   "email": "jane@acme.com",
-//   "phone": "+66959839411",
-//   "password": "P@ssw0rd123",
-//   "first_name": "Jane",
-//   "last_name": "Doe",
-//   "name": "Jane Doe",
-//   "locale": "th-TH",
-//   "timezone": "Asia/Bangkok",
-//   "device_info": {
-//     "os": "iOS",
-//     "appVersion": "1.2.3",
-//     "deviceId": "abc123"
-//   }
-// }
 export async function register(
   payload: {
     firstName: string;

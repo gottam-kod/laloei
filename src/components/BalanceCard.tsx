@@ -1,7 +1,7 @@
 import { memo } from "react";
-import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, Text, View, ViewStyle } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
-import { UI } from "../theme/theme";
+import { UI } from "../theme/token";
 import Floating from "./Floating";
 
 type Balance = { label: string; used: number; total: number; grad?: [string, string] };
@@ -33,7 +33,7 @@ const BalanceCard = memo(function BalanceCard({ variant, items }: { variant: 'mo
 
 const S = StyleSheet.create({
     /* Balance */
-    barRow: { marginTop: UI.space.md },
+    barRow: { marginTop: UI.space.md , gap: 6 } as ViewStyle,
     barHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
     barLabel: { color: UI.color.text, fontWeight: '700' },
     barVal: { color: UI.color.accentDark, fontWeight: '800' },

@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { COLOR } from "../theme/theme";
+import { COLOR } from "../theme/token";
 
  const Divider = () => (
   <View

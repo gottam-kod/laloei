@@ -3,9 +3,11 @@ const thaiDays = ['อาทิตย์', 'จันทร์', 'อังค�
 const englishDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 const englishMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const thMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 
 const DayString = (date: Date): string => {
-
     const currentTime: any = new Date().toISOString().includes('T') ? true : false;
 
     if (currentTime) {
@@ -31,6 +33,13 @@ const ThaiDayString = (date: Date): string => {
     const year = date.getFullYear();
     return `วัน${thaiDays[date.getDay()]}ที่ ${day}/${month}/${year}`;
 }
+const toThaiDate = (iso: string) => {
+    const d = new Date(iso);
+    const dd = d.getDate();
+    const mm = thMonths[d.getMonth()];
+    const yyyy = d.getFullYear();
+    return `${dd} ${mm} ${yyyy}`;
+};
 
 // วันที่ 15 ตุลาคม 2023
 
@@ -45,4 +54,17 @@ const EnglishDateString = (date: Date): string => {
     return `Date: ${day}/${englishMonths[date.getMonth()]}/${year}`;
 }
 
-export { DayString, ThaiDayString, DateString, ThaiDateString, EnglishDateString, thaiDays, englishDays };
+export {
+    DayString,
+    ThaiDayString,
+    DateString, 
+    ThaiDateString,
+     EnglishDateString,
+    thaiDays,
+    englishDays,
+    thaiMonths,
+    englishMonths,
+    thMonths,
+    enMonths,
+    toThaiDate
+};

@@ -2,22 +2,19 @@ import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import * as SecureStore from 'expo-secure-store';
-import { MenuItem } from '../interface/auth/me.interface';
+import { pickPrimaryRole } from '../auth/pickPrimaryRole';
+import { ActiveOrg, Menu } from '../interface/auth/me.interface';
 
 type AuthState = {
   token: string | null;
   /** ใช้เช็คว่า rehydrate เสร็จหรือยัง (กันกระพริบ/เงื่อนไขก่อน mount) */
   profile: Profile | null;
   hydrated: boolean;
+  lang: 'th' | 'en';
   login: (token: string) => void;
   logout: () => void;
   setHydrated: (v: boolean) => void;
   setProfile: (p: Profile | null) => void;
-};
-
-type Organization = {
-  orgId: string;
-  orgName: string;
 };
 
 type Profile = {
@@ -30,11 +27,11 @@ type Profile = {
   position?: string | null;
   avatarUri?: string | null;
   notificationCount?: number;
-  role?: string[]; // เช่น ['owner', 'admin']
+  roles?: string[]; // เช่น ['owner', 'admin']
   lang?: 'th' | 'en'; // ภาษา UI ที่เลือก (ถ้ามี)
-  menus?: MenuItem[]; // เมนูที่ผู้ใช้มีสิทธิ์เข้าถึง
+  menus?: Menu[]; // เมนูที่ผู้ใช้มีสิทธิ์เข้าถึง
   permissions?: string[]; // สิทธิ์ที่ผู้ใช้มี
-  org?: Organization | null; // ชื่อบริษัท (ถ้ามี)
+  org?: ActiveOrg | null; // ชื่อบริษัท (ถ้ามี)
 }
 
 
@@ -65,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       profile: null,
       hydrated: false,
-      
+      lang: 'th',
       login: (token) => set({ token }),
       logout: () => set({ token: null, profile: null }),
       setHydrated: (v) => set({ hydrated: v }),
@@ -73,6 +70,7 @@ export const useAuthStore = create<AuthState>()(
         if (p) {
           p.lang = p.lang || (p.locale || '').startsWith('th') ? 'th' : 'en';
           set({ profile: p });
+          set({ lang: p.lang });
         } else {
           // ล้าง profile ทิ้ง (เช่น กรณี logout)
           set({ profile: null });
@@ -95,6 +93,25 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+
+
+
+export const useUserRole = () => {
+  const profile = useAuthStore((s) => s.profile);
+  const rawRoles = profile?.roles;
+  const roleArray: string[] = Array.isArray(rawRoles)
+    ? rawRoles.filter((r): r is string => typeof r === 'string')
+    : (typeof rawRoles === 'string' ? [rawRoles] : []);
+
+  if (roleArray.length === 0) {
+    return 'EMP';
+  } else if (roleArray.length === 1) {
+    return roleArray[0] || 'EMP';
+  } else {
+    return pickPrimaryRole(roleArray);
+  }
+}
 
 /** ตัวช่วยอ่านสถานะล็อกอินแบบ “อนุมานจาก token” (ไม่ซ้ำซ้อนกับ state) */
 export const useIsLoggedIn = () => useAuthStore((s) => !!s.token);

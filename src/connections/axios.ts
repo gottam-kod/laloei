@@ -6,7 +6,7 @@ declare global {
 }
 
 export const instanceAxios = axios.create({
-  baseURL: 'http://localhost:3000/api/v1',
+  baseURL: 'http://localhost:3003/api/v1',
   headers: { 'Content-Type': 'application/json' },
 });
 

@@ -9,13 +9,16 @@ export type RootStackParamList = {
 
 /* ----- Home stack under HomeTab ----- */
 export type HomeStackParamList = {
-  HomeDashboard: undefined;
-  Requests: undefined;
-  LeaveRequest: { mode?: 'create' } | undefined;
-  ApprovalList: undefined;
-  LeaveSummary: undefined;
-  HRNews: undefined;
-  CheckInScreen: undefined;
+  LaloeiHome: undefined;
+  LeaveRequest: undefined;
+  LeaveHistory: undefined;
+  ApproveCenter: undefined;
+  CalendarScreen: undefined;
+  PolicyScreen: undefined;
+  ProfileScreen: undefined;
+  ReportScreen: undefined;
+  SummaryScreen: undefined;
+  SettingsScreen: undefined;
   Notifications: undefined;
 };
 
@@ -48,6 +51,11 @@ export type ProfileStackParamList = {
   ManageMembers: undefined;
   Terms: undefined;
   DeviceInfo: undefined;
+  UpgradePlan: undefined;
+  Billing: undefined;
+  TeamStructure: undefined;
+  LeaveType: undefined;
+  Settings: undefined;
 };
 
 

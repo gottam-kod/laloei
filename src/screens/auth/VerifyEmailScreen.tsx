@@ -1,11 +1,16 @@
 // src/screens/auth/VerifyEmailScreen.tsx
+import { COLOR } from '@/src/theme/token';
 import React, { useMemo, useRef, useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView,
-  Platform, StyleSheet, Alert, SafeAreaView
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text, TextInput, TouchableOpacity,
+  View
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { COLOR } from '@/src/theme/theme';
 
 type Props = {
   email: string;

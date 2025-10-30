@@ -1,4 +1,5 @@
 
+import { BackgroundFX } from '@/src/components/Background';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
@@ -11,8 +12,7 @@ import {
   View
 } from 'react-native';
 import { AuthStackParamList } from '../../navigation/RootStackParamList';
-import { COLOR } from '../../theme/theme';
-import { BackgroundFX } from '@/src/components/Background';
+import { COLOR, FONT } from '../../theme/token';
 
 
 const { width } = Dimensions.get('window');
@@ -66,6 +66,8 @@ const AuthLandingScreen: React.FC<Props> = ({
       ? 'ระบบลางานสำหรับธุรกิจ SME ใช้ง่าย ไม่ยุ่งยาก'
       : 'Leave system for SMEs — simple and hassle-free';
 
+
+      console.log("tagline: ",tagline);
   // const handleLoginPhone = withFallback(onLoginPhone, 'AuthPhoneLogin');
   // const openLoginEmail = withFallback(onLoginEmail, 'AuthEmailLogin');
   const handleLoginPhone = onLoginPhone || (() => nav.navigate('AuthPhoneLogin'));
@@ -81,7 +83,7 @@ const AuthLandingScreen: React.FC<Props> = ({
         style={StyleSheet.absoluteFill}
       />
 
-      {/* มุมขวาบนแต่ง wave ส้มตาม mockup */}
+      {/* มุมขวาบนแต่ง wave ส้มตาม mockupr */}
       <View style={styles.orangeWave}>
         <LinearGradient
           colors={['#FFD389', '#FFB957']}
@@ -95,13 +97,13 @@ const AuthLandingScreen: React.FC<Props> = ({
             style={[styles.langChip, lang === 'th' && styles.langActive]}
             onPress={() => switchLang('th')}
           >
-            <Text style={[styles.langText, lang === 'th' && styles.langTextActive]}>TH</Text>
+            <Text style={[styles.langText, lang === 'th' && styles.langTextActive,{fontFamily: FONT.body}]}>TH</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.langChip, lang === 'en' && styles.langActive]}
             onPress={() => switchLang('en')}
           >
-            <Text style={[styles.langText, lang === 'en' && styles.langTextActive]}>EN</Text>
+            <Text style={[styles.langText, lang === 'en' && styles.langTextActive,{fontFamily: FONT.body}]}>EN</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -110,42 +112,42 @@ const AuthLandingScreen: React.FC<Props> = ({
       <View style={styles.header}>
         <Text style={styles.logoEmoji}>📅</Text>
         <View style={styles.brandRow}>
-          <Text style={[styles.brand, { color: COLOR.teal }]}>{t('appname')}</Text>
+          <Text style={[styles.brand, { color: COLOR.teal, fontFamily: FONT.heading }]}>{t('appname')}</Text>
           {/* <Text style={[styles.brand, { color: COLOR.orange, marginLeft: 6 }]}></Text> */}
         </View>
-        <Text style={styles.tagline}>{tagline}</Text>
+        <Text style={[styles.tagline, { fontFamily: FONT.body }]}>{tagline}</Text>
       </View>
 
       {/* ปุ่มหลัก */}
       <View style={styles.container}>
         <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: COLOR.orange }]} onPress={handleLoginPhone}>
-          <Text style={styles.btnPrimaryText}>📱  {t('auth.loginWithPhone')}</Text>
+          <Text style={[styles.btnPrimaryText, { fontFamily: FONT.body }]}>📱  {t('auth.loginWithPhone')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: COLOR.teal }]} onPress={openLoginEmail}>
-          <Text style={styles.btnPrimaryText}>✉️  {t('auth.loginWithEmail')}</Text>
+          <Text style={[styles.btnPrimaryText, { fontFamily: FONT.body }]}>✉️  {t('auth.loginWithEmail')}</Text>
         </TouchableOpacity>
 
         {/* เส้นคั่น หรือ */}
         <View style={styles.dividerRow}>
           <View style={styles.line} />
-          <Text style={styles.dividerText}>{t('auth.or')}</Text>
+          <Text style={[styles.dividerText, { fontFamily: FONT.body }]}>{t('auth.or')}</Text>
           <View style={styles.line} />
         </View>
 
         {/* Apple / Google */}
         <TouchableOpacity style={[styles.btnApple, styles.shadowSoft]} onPress={onLoginApple}>
-          <Text style={styles.btnAppleText}>  {t('auth.loginWithApple')}</Text>
+          <Text style={[styles.btnAppleText, { fontFamily: FONT.body }]}>  {t('auth.loginWithApple')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnGoogle} onPress={onLoginGoogle}>
-          <Text style={styles.btnGoogleText}>G  {t('auth.loginWithGoogle')}</Text>
+          <Text style={[styles.btnGoogleText, { fontFamily: FONT.body }]}>G  {t('auth.loginWithGoogle')}</Text>
         </TouchableOpacity>
 
         {/* ลิงก์สมัคร */}
-        <Text style={styles.signup}>
+        <Text style={[styles.signup, { fontFamily: FONT.body }]}>
           {lang === 'th' ? 'ยังไม่มีบัญชี? ' : "Don't have an account? "}
-          <Text style={styles.signupLink} onPress={onSignup}>
+          <Text style={[styles.signupLink, { fontFamily: FONT.body }]} onPress={onSignup}>
             {lang === 'th' ? 'สมัครใช้งานฟรี' : 'Try for free'}
           </Text>
         </Text>

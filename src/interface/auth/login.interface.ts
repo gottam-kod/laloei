@@ -7,6 +7,7 @@ export type LoginResponse = {
   access_token: string;
   refresh_token?: string;
   user?: any;
+  role?: string[];
   // เพิ่ม field อื่น ๆ ตามจริง
 };
 

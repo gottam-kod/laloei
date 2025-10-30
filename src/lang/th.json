@@ -1,5 +1,6 @@
 {
     "appname": "ลาเลย",
+    "subtitle": "ระบบจัดการการลางานสำหรับองค์กรของคุณ",
     "auth": {
         "login": "เข้าสู่ระบบ",
         "logout": "ออกจากระบบ",
@@ -23,8 +24,27 @@
         "or": "หรือ",
         "signup": "สมัครสมาชิก",
         "noAccount": "ยังไม่มีบัญชี?",
-        "haveAccount": "มีบัญชีอยู่แล้ว?"
-
+        "haveAccount": "มีบัญชีอยู่แล้ว?",
+        "rememberMe": "จดจำการเข้าสู่ระบบ",
+        "invalidPassword": "รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร",
+        "minLength": "อย่างน้อย 6 ตัวอักษร",
+        "invalidEmail": "รูปแบบอีเมลไม่ถูกต้อง",
+        "emailPlaceholder": "กรอกอีเมลของคุณ",
+        "loginSubtitle": "กรอกอีเมลและรหัสผ่านเพื่อเข้าใช้งาน",
+        "createAccount": "สร้างบัญชีใหม่",
+        "registerSubtitle": "สร้างบัญชีของคุณเพื่อเริ่มต้น",
+        "firstNameplaceholder": "กรอกชื่อ",
+        "lastNameplaceholder": "กรอกนามสกุล",
+        "phoneOptional": "เบอร์โทรศัพท์ (ไม่บังคับ)",
+        "invalidPhone": "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
+        "confirmPassword": "ยืนยันรหัสผ่าน",
+        "passwordsDoNotMatch": "รหัสผ่านไม่ตรงกัน",
+        "terms": "ฉันยอมรับข้อตกลงการใช้งานและนโยบายความเป็นส่วนตัว",
+        "termsOfService": "ยินยอมรับข่าวสาร/สิทธิพิเศษ (เลือกได้)"
+    },
+    "header": {
+        "position": "ตำแหน่ง",
+        "department": "แผนก"
     },
     "tabs": {
         "home": "หน้าหลัก",
@@ -44,15 +64,14 @@
         "title": "หน้าหลัก",
         "requestLeave": "+ ขอลา",
         "team": "ทีมงาน",
+        "greetingMorning": "สวัสดีตอนเช้า",
+        "greetingAfternoon": "สวัสดีตอนบ่าย",
+        "greetingEvening": "สวัสดีตอนเย็น",
+        "greetingNight": "สวัสดีตอนดึก",
         "stats": {
-            "annualRemaining": "สิทธิ์คงเหลือ (ปี)",
-            "sickRemaining": "สิทธิ์คงเหลือ (ป่วย)",
-            "pending": "คำขอค้าง",
-            "thisMonthUsed": "สรุปเดือนนี้",
-            "leave_annual": "ลาประจำปี",
-            "leave_sick": "ลาป่วย",
-            "leave_other": "ลาอื่นๆ",
-            "daysUsed": "วันลาที่ใช้ไป"
+            "annualRemaining": "สิทธิ์คงเหลือ",
+            "sickRemaining": "ใช้แล้ว",
+            "daysUsed": "สิทธิ์รวม"
         },
         "entitlements": {
             "title": "ความคืบหน้าสิทธิ์วันลา",
@@ -68,12 +87,39 @@
             "hrNews": "ข่าวสาร HR",
             "seeAll": "ดูทั้งหมด"
         },
-        "empty": "ไม่มีรายการในมุมมองนี้"
+        "empty": "ไม่มีรายการในมุมมองนี้",
+        "shortcuts": "ทางลัด"
+        
     },
     "status": {
         "PENDING": "รออนุมัติ",
         "APPROVED": "อนุมัติแล้ว",
         "REJECTED": "ปฏิเสธแล้ว"
+    },
+    "buttons": {
+        "approve": "อนุมัติ",
+        "reject": "ปฏิเสธ",
+        "viewDetails": "ดูรายละเอียด",
+        "viewAll": "ดูทั้งหมด",
+        "requestLeave": "+ ขอลา",
+        "edit": "แก้ไข",
+        "delete": "ลบ",
+        "submit": "ส่ง",
+        "cancel": "ยกเลิก",
+        "update": "อัปเดต",
+        "confirm": "ยืนยัน",
+        "close": "ปิด",
+        "loadMore": "โหลดเพิ่มเติม",
+        "ok": "ตกลง",
+        "yes": "ใช่",
+        "no": "ไม่",
+        "apply": "สมัคร",
+        "reset": "รีเซ็ต",
+        "select": "เลือก",
+        "change": "เปลี่ยน",
+        "viewQR": "ดู QR โค้ด",
+        "refresh": "รีเฟรช",
+        "retry": "ลองใหม่"
     },
     "common": {
         "day": "วัน",
@@ -84,7 +130,6 @@
         "from": "จาก",
         "to": "ถึง",
         "at": "ที่",
-        "minutes": "นาที",
         "minute": "นาที",
         "yes": "ใช่",
         "no": "ไม่",
@@ -114,7 +159,7 @@
         "selectType": "เลือกประเภท",
         "select": "เลือก",
         "change": "เปลี่ยน",
-        "viewAll": "ดูทั้งหมด",
+        "viewAll": "ทั้งหมด",
         "more": "เพิ่มเติม",
         "less": "น้อยลง",
         "welcome": "ยินดีต้อนรับ",
@@ -155,7 +200,12 @@
         "actions": "การดำเนินการ",
         "details": "รายละเอียด",
         "comments": "ความคิดเห็น",
-        "addComment": "เพิ่มความคิดเห็น"
+        "addComment": "เพิ่มความคิดเห็น",
+        "noComments": "ไม่มีความคิดเห็น",
+        "submittedAt": "ยื่นคำขอ",
+        "start": "เริ่ม",
+        "end": "สิ้นสุด",
+        "quickActions": "ทางลัด"
     },
     "profile": {
         "settings": "การตั้งค่า",
@@ -219,18 +269,22 @@
         "deviceInfoUpdated": "อัปเดตข้อมูลอุปกรณ์สำเร็จ",
         "employeeId": "รหัสพนักงาน"
     },
-    "leaveRequest": {
+    "leave": {
         "requestLeave": "ขอลา",
+        "formTitle": "แบบฟอร์มคำขอลา",
+        "policy": "นโยบายการลา",
         "editLeave": "แก้ไขการลา",
         "type": "ประเภทลา",
         "selectType": "เลือกประเภทลา",
         "from": "จากวันที่",
         "to": "ถึงวันที่",
-        "halfDay": "ครึ่งวัน",
+        "halfDayAM": "ครึ่งวัน (เช้า)",
+        "halfDayPM": "ครึ่งวัน (บ่าย)",
         "fullDay": "เต็มวัน",
         "startTime": "เวลาเริ่มต้น",
         "endTime": "เวลาสิ้นสุด",
         "reason": "เหตุผลการลา",
+        "reasonPlaceholder": "ระบุเหตุผลเพิ่มเติม (ถ้ามี)",
         "attachFile": "แนบไฟล์ (ถ้ามี)",
         "submit": "ส่งคำขอ",
         "cancel": "ยกเลิก",
@@ -247,6 +301,27 @@
         "errorLoadingTypes": "ไม่สามารถโหลดประเภทลาได้ โปรดลองอีกครั้ง",
         "errorSubmitting": "ไม่สามารถส่งคำขอได้ โปรดลองอีกครั้ง",
         "errorUpdating": "ไม่สามารถอัปเดตคำขอได้ โปรดลองอีกครั้ง",
-        "insufficientBalance": "คุณไม่มีวันลาพอสำหรับประเภทนี้"
+        "insufficientBalance": "คุณไม่มีวันลาพอสำหรับประเภทนี้",
+        "halfDayOnly": "เลือกครึ่งวันได้เฉพาะกรณีลาวันเดียว",
+        "dateRange": "ช่วงวันลา",
+        "timeRange": "เลือกช่วงเวลา",
+        "sumDay": "รวมวันลา",
+        "selectTypeFirst": "กรุณาเลือกประเภทการลาก่อน",
+        "upcomingRequest": "คำขอล่าสุด"
+    },
+    "calendar": {
+        "title": "ปฏิทิน",
+        "noEvents": "ไม่มีเหตุการณ์ในวันนี้",
+        "loadingEvents": "กำลังโหลดเหตุการณ์...",
+        "eventDetails": "แตะวันที่เพื่อดูรายละเอียดเหตุการณ์",
+        "noLeaveRequests": "ยังไม่มีรายการลา",
+        "allDay": "ตลอดวัน",
+        "startsAt": "เริ่มต้นที่",
+        "endsAt": "สิ้นสุดที่",
+        "leave": "ลางาน",
+        "holiday": "วันหยุด",
+        "birthday": "วันเกิด",
+        "meeting": "ประชุม"
+      
     }
 }

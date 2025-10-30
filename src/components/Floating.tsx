@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, ViewStyle } from "react-native";
-import { UI } from "../theme/theme";
+import { StyleSheet, View, ViewStyle } from "react-native";
+import { UI } from "../theme/token";
 
 const Floating = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => (
     <View style={[S.float, style]}>
         {/* top highlight hairline */}
-        <View style={S.floatTopHL} />
+        {/* <View style={S.floatTopHL} /> */}
         {children}
     </View>
 );
@@ -14,7 +14,7 @@ export default Floating;
 const S = StyleSheet.create({
     /* Floating base (card wrapper) */
     float: {
-        backgroundColor: 'rgba(255,255,255,0.92)',
+        backgroundColor: 'rgba(247, 248, 250, 0.46)',
         borderRadius: UI.radius.xl,
         padding: UI.space.lg,
         borderWidth: 1, borderColor: 'rgba(255,255,255,0.65)',

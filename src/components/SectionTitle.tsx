@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { memo } from "react";
-import { View, Text, Pressable ,StyleSheet } from "react-native";
-import { UI } from "../theme/theme";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { UI } from "../theme/token";
 
 const SectionTitle = memo(function SectionTitle({
   icon, title, rightLink, onRightPress

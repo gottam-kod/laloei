@@ -1,128 +1,97 @@
 // src/navigation/RootTabs.tsx
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { JSX, useMemo } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore } from '@/src/store/useAuthStore';
 import HomeStack from '@/src/navigation/HomeStack';
-import TeamScreen from '@/src/screens/TeamScreen';
-import PerksScreen from '@/src/screens/PerksScreen';
 import ProfileStack from '@/src/navigation/ProfileStack';
-import { Role, TAB_POLICY, TabKey } from '@/src/auth/roles';
-import { navigationRef, resetToLogin } from './navigationRef';
-import NotificationsScreen from '../screens/NotificationsScreen';
+import PerksScreen from '@/src/screens/PerksScreen';
+import TeamScreen from '@/src/screens/TeamScreen';
+import { useAuthStore } from '@/src/store/useAuthStore';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React, { JSX, useEffect, useMemo } from 'react';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LeaveRequestPro from '../screens/leave/LeaveRequestScreen';
+import { resetToLogin } from './navigationRef';
+import CheckinScreen from '../screens/CheckinScreen';
 
-// Tab type (คงแบบเดิมของคุณ)
 export type RootTabParamList = {
   HomeTab: undefined;
+  RequestTab: undefined;
   HistoryTab: undefined;
   TeamTab: undefined;
   PerksTab: undefined;
   ProfileTab: undefined;
   Notifications: undefined;
+  // ⛔ อย่าใส่ ReportTab ถ้าไม่ได้ประกาศตรงนี้
 };
+
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
+// 1) ตาราง mapping MENU_* → TabKey + component + icon
+const MENU_TO_TAB: Record<
+  string,
+  { tab: keyof RootTabParamList; component: () => JSX.Element; icon: string; title?: string }
+> = {
+  MENU_HOME:     { tab: 'HomeTab',    component: () => <HomeStack />,      icon: 'home-outline',       title: 'Home' },
+  MENU_LEAVE:    { tab: 'HistoryTab', component: () => <LeaveRequestPro />,icon: 'time-outline',       title: 'ลา'  }, // หรือใช้ RequestTab ตาม flow ของคุณ
+  MENU_TEAM:     { tab: 'TeamTab',    component: () => <TeamScreen />,     icon: 'people-outline',     title: 'ทีม' },
+  MENU_PROFILE:  { tab: 'ProfileTab', component: () => <ProfileStack />,   icon: 'person-outline',     title: 'โปรไฟล์' },
+  MENU_REPORTS:  { tab: 'PerksTab',   component: () => <PerksScreen />,    icon: 'stats-chart-outline',title: 'สถิติ' }, // ชั่วคราว: map รายงานไป PerksTab หรือสร้าง ReportTab ให้ตรงก็ได้
+  MENU_CHECKIN:  { tab: 'RequestTab', component: () => <CheckinScreen />, icon: 'location-outline',  title: 'เช็คอิน' }, // ตัวอย่างถ้าจะเพิ่ม
+};
+
 export default function MainTabs(): JSX.Element {
+  const profile = useAuthStore((s) => s.profile);
+  // 2) ถ้าไม่มีโปรไฟล์ → เด้ง login ผ่าน effect แล้วไม่ render อะไร
+  useEffect(() => {
+    if (!profile) resetToLogin();
+  }, [profile]);
+  if (!profile) return <></>;
 
+  // 3) เมนูหลักเท่านั้น (parent_key == null) และ active/authorized มาแล้วจาก profile
+  const rootMenus = useMemo(
+    () => (profile.menus || []).filter((m) => m.parent_key == null),
+    [profile.menus]
+  );
 
-  const profile = useAuthStore(s => s.profile); // คาดว่ามี role + menus
-  if (!profile){
-    resetToLogin();
-  } 
+  console.log('MainTabs render, rootMenus=', rootMenus);
 
-  // ป้องกันกรณีข้อมูลยังไม่มา
-  const role = (profile?.role as unknown as Role) ?? 'EMP';
+  // 4) สร้างรายการแท็บจาก mapping; ตัดตัวที่ไม่มี mapping ทิ้ง + กันซ้ำตาม tab name
+  const tabs = useMemo(() => {
+    const acc: Array<{ key: string; tab: keyof RootTabParamList; component: () => JSX.Element; title: string; icon: string }> = [];
+    const used = new Set<keyof RootTabParamList>();
 
-  // 1) สิทธิ์ขั้นแรกจาก role
-  const allowedByRole = TAB_POLICY[role];
+    for (const m of rootMenus) {
+      const map = MENU_TO_TAB[m.key];
+      if (!map) continue; // ไม่มี mapping ก็ข้าม
+      if (used.has(map.tab)) continue; // กันซ้ำ (เผื่อมีหลาย MENU map ไป tab เดียว)
+      used.add(map.tab);
+      acc.push({
+        key: m.key,
+        tab: map.tab,
+        component: map.component,
+        title: m.title || map.title || m.key, // ใช้ title จาก profile ถ้ามี
+        icon: map.icon,
+      });
+    }
 
-  // 2) ถ้ามี menus จากเซิร์ฟเวอร์ (server-driven), ซ้อนเงื่อนไขอีกชั้น
-  const hasMenu = (key: string) => profile?.menus?.some((m: any) => m.key === key);
-  // map Tab → menuKey ในระบบของคุณ
-  const tabToMenuKey: Record<TabKey, string> = {
-    HomeTab: 'home',
-    HistoryTab: 'leave-history',
-    TeamTab: 'team',
-    PerksTab: 'perks',
-    ProfileTab: 'profile',
-  };
+    // คุณสามารถจัดลำดับตาม sort ตรง profile ได้ ถ้าต้องการ
+    return acc;
+  }, [rootMenus]);
 
-  console.log('MainTabsbbbbbbbb: role=', role, ' menus=', profile?.menus, ' allowedTabs=', allowedByRole);
-
-  // 3) คัดแท็บสุดท้ายที่จะโชว์ (intersect ระหว่าง policy กับเมนูจริง)
-  const enabledTabs = allowedByRole.filter(tab => hasMenu(tabToMenuKey[tab]));
-  if (enabledTabs.length === 0) enabledTabs.push('ProfileTab');
-
-  // 4) initialRouteName ต้องเป็นแท็บที่มีจริง
-  const initial = enabledTabs.includes('HomeTab') ? 'HomeTab' : enabledTabs[0];
-
-  // 5) re-mount เมื่อรายการแท็บเปลี่ยน
-  const navKey = enabledTabs.join('|');
+  // 5) ตั้งค่า route แรกให้มีแน่ ๆ (ถ้าไม่มี HomeTab ก็ใช้ตัวแรก)
+  const initialRouteName: keyof RootTabParamList = tabs.find(t => t.tab === 'HomeTab')?.tab || (tabs[0]?.tab ?? 'HomeTab');
 
   return (
-    <Tab.Navigator key={navKey} initialRouteName={initial} screenOptions={{ headerShown: false }}>
-      {enabledTabs.includes('HomeTab') && (
+    <Tab.Navigator initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
+      {tabs.map((t) => (
         <Tab.Screen
-          name="HomeTab"
-          component={HomeStack}
+          key={t.key}
+          name={t.tab}
+          component={t.component as any}
           options={{
-            title: 'Home',
-            tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
+            title: t.title,
+            tabBarIcon: ({ color, size }) => <Ionicons name={t.icon as any} color={color} size={size} />,
           }}
         />
-      )}
-
-      {enabledTabs.includes('HistoryTab') && (
-        <Tab.Screen
-          name="HistoryTab"
-          component={HomeStack /* หรือ HistoryStack ของคุณ */}
-          options={{
-            title: 'Requests',
-            tabBarIcon: ({ color, size }) => <Ionicons name="time-outline" color={color} size={size} />,
-          }}
-        />
-      )}
-
-      {enabledTabs.includes('TeamTab') && (
-        <Tab.Screen
-          name="TeamTab"
-          component={TeamScreen}
-          options={{
-            title: 'Team',
-            tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
-          }}
-        />
-      )}
-
-      {enabledTabs.includes('PerksTab') && (
-        <Tab.Screen
-          name="PerksTab"
-          component={PerksScreen}
-          options={{
-            title: 'Perks',
-            tabBarIcon: ({ color, size }) => <Ionicons name="star-outline" color={color} size={size} />,
-          }}
-        />
-      )}
-
-      {enabledTabs.includes('ProfileTab') && (
-        <Tab.Screen
-          name="ProfileTab"
-          component={ProfileStack}
-          options={{
-            title: 'Profile',
-            tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} />,
-          }}
-        />
-      )}
-      {/* <Tab.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        // options={{
-        //   title: 'Dashboard',
-        //   tabBarIcon: ({ color, size }) => <Ionicons name="grid-outline" color={color} size={size} />,
-        // }}
-      /> */}
+      ))}
     </Tab.Navigator>
   );
 }

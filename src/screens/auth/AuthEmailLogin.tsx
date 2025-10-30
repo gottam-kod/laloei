@@ -19,6 +19,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getMe, loginWithEmail } from '../../connections/auth/authApi';
 import { RootStackParamList } from '../../navigation/RootStackParamList';
 import { BackgroundFX } from '@/src/components/Background';
+import { FONT } from '@/src/theme/token';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/src/lang/i18n';
 
 type Props = {
   onBack?: () => void;
@@ -42,6 +45,7 @@ const COLOR = {
 const HIT = { top: 10, bottom: 10, left: 10, right: 10 };
 
 const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
+  const { t } = useTranslation();
   const nav = useNavigation<NavigationProp<RootStackParamList>>();
   const safeGoBack = () => {
     if (nav.canGoBack()) nav.goBack();
@@ -56,7 +60,8 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [email, setEmail] = useState('query_org@gmail.com');
+  // const [email, setEmail] = useState('admin@laloei.com');
+  const [email, setEmail] = useState('ph.yotaruk@gmail.com');
   const [password, setPassword] = useState('P@ssw0rd123');
 
   const emailValid = validateEmail(email);
@@ -76,23 +81,27 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
         password,
         remember,
       } as any);
+      // const currentLangCode = (i18n.resolvedLanguage || i18n.language || '').startsWith('th') ? 'th-TH' : 'en-EN';
 
+      // console.log('Login successful, fetching user profile...', currentLangCode);
       const me = await getMe(res.access_token);
+
+      console.log('User profile fetched successfully:', me.menus);
 
       login(res.access_token);
       setProfile({
-        id: me.id,
-        email: me.email,
-        name: me.name ?? null,
-        locale: me.locale ?? null,
-        timezone: me.timezone ?? null,
-        department: me.department ?? null,
-        position: me.position ?? null,
-        avatarUri: me.avatarUri ?? null,
-        role: Array.isArray(me.role) ? me.role : typeof me.role === 'string' ? [me.role] : ['employee'],
+        id: me.user.id,
+        email: me.user.email,
+        name: me.user.name ?? null,
+        locale: me.preferences.locale ?? null,
+        timezone: me.preferences.timezone ?? null,
+        // department: me.user.department ?? null,
+        // position: me.user.position ?? null,
+        avatarUri: me.user.avatar_url ?? null,
         menus: me.menus ?? [],
         permissions: me.permissions ?? [],
-        org: me.org ?? null,
+        org: me.active_org ?? null,
+        roles: me.user.roles ?? [],
       });
 
       await onLogin?.({ email, password, remember });
@@ -133,7 +142,7 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
           <TouchableOpacity onPress={safeGoBack} hitSlop={HIT} style={styles.backBtn} accessibilityLabel="ย้อนกลับ">
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>เข้าสู่ระบบ</Text>
+          <Text style={[styles.headerTitle, { fontFamily: FONT.heading }]}>{t('auth.login')}</Text>
           <View style={{ width: 40 }} />
         </View>
       </View>
@@ -142,48 +151,48 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={styles.bodyContainer}>
           <View style={styles.card}>
-            <Text style={styles.title}>เข้าสู่ระบบด้วยอีเมล</Text>
-            <Text style={styles.sub}>กรอกอีเมลและรหัสผ่านเพื่อเข้าใช้งาน</Text>
+            <Text style={[styles.title, { fontFamily: FONT.heading }]}>{t('auth.loginWithEmail')}</Text>
+            <Text style={[styles.sub, { fontFamily: FONT.body }]}>{t('auth.loginSubtitle')}</Text>
 
             {/* Email */}
-            <Text style={styles.label}>อีเมล</Text>
+            <Text style={[styles.label, { fontFamily: FONT.body }]}>{t('auth.email')}</Text>
             <TextInput
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
-              placeholder="you@company.com"
+              placeholder={t('auth.emailPlaceholder')}
               value={email}
               onChangeText={(t) => {
                 const s = t.replace(/\s/g, '');
                 setEmail(s);
                 setError(null);
               }}
-              style={[styles.input, !!email && !emailValid && styles.inputError]}
+              style={[styles.input, { fontFamily: FONT.body }, !!email && !emailValid && styles.inputError]}
               returnKeyType="next"
             />
-            {!!email && !emailValid && <Text style={styles.error}>รูปแบบอีเมลไม่ถูกต้อง</Text>}
+            {!!email && !emailValid && <Text style={[styles.error, { fontFamily: FONT.body }]}>{t('auth.invalidEmail')}</Text>}
 
             {/* Password */}
-            <Text style={styles.label}>รหัสผ่าน</Text>
+            <Text style={[styles.label, { fontFamily: FONT.body }]}>{t('auth.password')}</Text>
             <View style={[styles.inputRow, password.length > 0 && !passValid && styles.inputError]}>
               <TextInput
-                placeholder="อย่างน้อย 6 ตัวอักษร"
+                placeholder={t('auth.minLength')}
                 value={password}
                 onChangeText={(t) => {
                   setPassword(t);
                   setError(null);
                 }}
                 secureTextEntry={!showPw}
-                style={styles.inputFlex}
+                style={[styles.inputFlex, { fontFamily: FONT.body }]}
                 returnKeyType="done"
                 onSubmitEditing={submit}
               />
               <TouchableOpacity onPress={() => setShowPw((v) => !v)} hitSlop={HIT}>
-                <Text style={styles.togglePw}>{showPw ? 'ซ่อน' : 'แสดง'}</Text>
+                <Text style={[styles.togglePw, { fontFamily: FONT.body }]}>{showPw ? 'ซ่อน' : 'แสดง'}</Text>
               </TouchableOpacity>
             </View>
             {password.length > 0 && !passValid && (
-              <Text style={styles.error}>รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร</Text>
+              <Text style={[styles.error, { fontFamily: FONT.body }]}>{t('auth.invalidPassword')}</Text>
             )}
 
             {/* Remember + Forgot */}
@@ -195,10 +204,10 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
                   thumbColor="#fff"
                   trackColor={{ true: COLOR.brandSoft, false: '#E5EAF1' }}
                 />
-                <Text style={styles.rememberText}>จดจำการเข้าสู่ระบบ</Text>
+                <Text style={[styles.rememberText, { fontFamily: FONT.body }]}>{t('auth.rememberMe')}</Text>
               </View>
               <TouchableOpacity onPress={() => onForgot?.(email)} hitSlop={HIT}>
-                <Text style={styles.link}>ลืมรหัสผ่าน?</Text>
+                <Text style={[styles.link, { fontFamily: FONT.body }]}>{t('auth.forgotPassword')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -220,7 +229,7 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
                 {loading ? (
                   <ActivityIndicator color="#814747ff" />
                 ) : (
-                  <Text style={styles.primaryText}>เข้าสู่ระบบ</Text>
+                  <Text style={[styles.primaryText, { fontFamily: FONT.body }]}>{t('auth.login')}</Text>
                 )}
               </LinearGradient>
             </TouchableOpacity>
@@ -228,14 +237,14 @@ const AuthEmailLogin: React.FC<Props> = ({ onLogin, onForgot, onRegister }) => {
             {/* Divider */}
             <View style={styles.dividerRow}>
               <View style={styles.hr} />
-              <Text style={styles.dividerText}>หรือ</Text>
+              <Text style={[styles.dividerText, { fontFamily: FONT.body }]}>{t('auth.or')}</Text>
               <View style={styles.hr} />
             </View>
 
             {/* CTA สมัครสมาชิก (Glass button) */}
             <TouchableOpacity style={styles.ssoBtn} onPress={onRegister} activeOpacity={0.9}>
               <View style={styles.dot} />
-              <Text style={styles.ssoText}>สมัครสมาชิกด้วย</Text>
+              <Text style={[styles.ssoText, { fontFamily: FONT.body }]}>{t('auth.signup')}</Text>
             </TouchableOpacity>
           </View>
         </View>

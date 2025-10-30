@@ -1,284 +1,499 @@
-// screens/org/MyOrganizationsScreen.tsx
-import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+// screens/MyOrganizationScreen.tsx
+import React, { useMemo, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert, FlatList,
-    Pressable,
-    RefreshControl, SafeAreaView,
-    Text,
-    useColorScheme,
-    View
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, StatusBar,
+  Alert,
 } from 'react-native';
-// API ที่คุณมีอยู่แล้ว (ปรับ path ให้ตรงโปรเจกต์)
-import { OrganizationModel } from '@/src/interface/organization';
-import { getOrganization, leaveOrganization, listMyOrganizations } from '../../connections/auth/orgApi';
-import { useAuthStore } from '../../store/useAuthStore';
-// type OrgSummary = {
-//     id: string;
-//     name: string;
-//     subdomain?: string | null;
-//     domain?: string | null;
-//     role?: 'owner' | 'admin' | 'approver' | 'hr' | 'member';
-//     plan_code?: string | null;
-//     trial?: { status: 'trialing' | 'active' | 'canceled' | 'past_due'; ends_at?: string | null } | null;
-//     locale?: string | null;
-//     timezone?: string | null;
-//     created_at?: string;
-//     members_count?: number;
-// };
+import { LinearGradient } from 'expo-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { FONT, THEME } from '@/src/theme/token';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProfileStackParamList, RootStackParamList } from '@/src/navigation/RootStackParamList';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { BackgroundFX } from '@/src/components/Background';
 
-// ถ้าในโปรเจกต์ยังไม่มี ให้เพิ่ม function 2 ตัวนี้ใน orgApi:
-// export async function listMyOrganizations(): Promise<{ items: OrgSummary[] }> { ... }
-// export async function leaveOrganization(orgId: string): Promise<{ ok: boolean }> { ... }
+type OrgPlan = 'Starter' | 'Pro' | 'Premium';
 
-export default function MyOrganizationsScreen() {
-    const { t } = useTranslation();
-    const nav = useNavigation<any>();
-    const scheme = useColorScheme();
-    const C = palette(scheme);
-    const profile = useAuthStore(s => s.profile);
-
-    const [loading, setLoading] = useState(true);
-    const [items, setItems] = useState<OrganizationModel[]>([]);
-    const [refreshing, setRefreshing] = useState(false);
-    // --- fetchData: ดึงรายการองค์กร ---
-    useEffect(() => {
-        console.log('MyOrganizationsScreen: fetching organizations...');
-        fetchData();
-    }, []);
-    // --- fetchData: ดึงรายการองค์กร ---
-
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            if (profile?.org?.orgId) {
-                const org = await getOrganization(profile.org.orgId); // <- คืน OrganizationModel
-                console.log('Fetched single organization:', org);
-                setItems(org ? [org] : []);
-            } else {
-                const res = await listMyOrganizations(); // ควรคืน { items: OrganizationModel[] }
-                setItems(res ?? []);
-            }
-        } catch (e: any) {
-            Alert.alert('Error', e?.response?.data?.message || 'โหลดรายการองค์กรไม่สำเร็จ');
-            setItems([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [profile?.org?.orgId]);
-
-    // --- onRefresh: รีเฟรชด้วย fetchData ตรง ๆ (กันกรณี items ว่าง/ไม่ตรง type) ---
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        try {
-            await fetchData();
-        } finally {
-            setRefreshing(false);
-        }
-    }, [fetchData]);
-    const renderItem = ({ item }: { item: OrganizationModel }) => {
-        const url = item.domain && item.subdomain
-            ? `https://${item.subdomain}.${item.domain}`
-            : item.subdomain
-                ? `https://${item.subdomain}.example.com`
-                : (item.domain ? `https://${item.domain}` : '—');
-
-        const trialText = item.trial?.status === 'trialing'
-            ? `Trial • ถึง ${formatDate(item.trial?.ends_at)}`
-            : item.plan_code
-                ? `Plan: ${item.plan_code}`
-                : '—';
-
-        return (
-            <View style={[s.card, { backgroundColor: C.card, borderColor: C.cardBorder, shadowColor: C.shadow }]}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={[s.cardEmoji]}>🏢</Text>
-                    <View style={{ flex: 1 }}>
-                        <Text style={[s.title, { color: C.text }]} numberOfLines={1}>{item.name}</Text>
-                        <Text style={{ color: C.subtle, marginTop: 2 }} numberOfLines={1}>{url}</Text>
-                    </View>
-                    <View style={[s.rolePill, { backgroundColor: roleBg(item.role), borderColor: C.cardBorder }]}>
-                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', textTransform: 'uppercase' }}>{item.role || '—'}</Text>
-                    </View>
-                </View>
-
-                <View style={s.metaRow}>
-                    <Meta label="สถานะ" value={trialText} color={C.muted} />
-                    <Meta label="สมาชิก" value={String(item.members_count ?? '—')} color={C.muted} />
-                    <Meta label="โซนเวลา" value={item.timezone || '—'} color={C.muted} />
-                </View>
-
-                <View style={s.actions}>
-                    <Pressable
-                        onPress={() => nav.navigate('OrganizationHome', { orgId: item.id })}
-                        style={[s.btn, { backgroundColor: C.primary }]}
-                    >
-                        <Text style={s.btnTextWhite}>เข้าใช้งาน</Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={() => nav.navigate('OrganizationSettings', { orgId: item.id })}
-                        style={[s.btn, { backgroundColor: C.ghost, borderColor: C.border }]}
-                    >
-                        <Text style={[s.btnText, { color: C.text }]}>ตั้งค่า</Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={() => nav.navigate('InviteMember', { orgId: item.id })}
-                        style={[s.iconBtn, { borderColor: C.border }]}
-                    >
-                        <Text style={{ fontSize: 16 }}>✉️</Text>
-                    </Pressable>
-                    {item.role !== 'owner' && (
-                        <Pressable
-                            onPress={() => confirmLeave(item)}
-                            style={[s.iconBtn, { borderColor: C.border }]}
-                        >
-                            <Text style={{ fontSize: 16 }}>🚪</Text>
-                        </Pressable>
-                    )}
-                </View>
-            </View>
-        );
-    };
-
-    const confirmLeave = (org: OrganizationModel) => {
-        Alert.alert('ออกจากองค์กร', `คุณต้องการออกจาก "${org.name}" ใช่ไหม`,
-            [
-                { text: 'ยกเลิก', style: 'cancel' },
-                {
-                    text: 'ออก', style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            await leaveOrganization(org.id);
-                            setItems(prev => prev.filter(o => o.id !== org.id));
-                        } catch (e: any) {
-                            Alert.alert('Error', e?.response?.data?.message || 'ออกจากองค์กรไม่สำเร็จ');
-                        }
-                    }
-                }
-            ]
-        );
-    };
-
-    return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-            {/* Header */}
-            <View style={[s.header, { backgroundColor: C.headerBg, borderBottomColor: C.headerBorder }]}>
-                <Text style={[s.headerTitle, { color: C.headerText }]}>องค์กรของฉัน</Text>
-                <Text style={{ color: C.subtle, fontSize: 12 }}>ผู้ใช้: {profile?.email || '—'}</Text>
-            </View>
-
-            {loading ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-                    <ActivityIndicator />
-                    <Text style={{ color: C.subtle }}>กำลังโหลด…</Text>
-                </View>
-            ) : items.length === 0 ? (
-                <View style={{ flex: 1, padding: 16, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: C.muted, marginBottom: 12, fontSize: 16 }}>ยังไม่มีองค์กร</Text>
-                    <Pressable
-                        onPress={() => nav.navigate('CreateOrganization')}
-                        style={[s.btn, { backgroundColor: C.primary, paddingHorizontal: 18 }]}
-                    >
-                        <Text style={s.btnTextWhite}>สร้างองค์กรใหม่</Text>
-                    </Pressable>
-                </View>
-            ) : (
-                <FlatList
-                    data={items}
-                    keyExtractor={(it) => it.id}
-                    renderItem={renderItem}
-                    contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                    ListFooterComponent={<View style={{ height: 24 }} />}
-                />
-            )}
-
-            {/* Floating create button */}
-            {!loading && (
-                <View style={[s.fabWrap]}>
-                    <Pressable
-                        onPress={() => nav.navigate('CreateOrganization')}
-                        style={[s.fab, { backgroundColor: C.primary, shadowColor: C.shadow }]}
-                    >
-                        <Text style={{ color: '#fff', fontSize: 22 }}>＋</Text>
-                    </Pressable>
-                </View>
-            )}
-        </SafeAreaView>
-    );
-}
-
-/* ---------- UI helpers ---------- */
-const Meta = ({ label, value, color }: { label: string; value: string; color: string }) => (
-    <View style={{ flex: 1 }}>
-        <Text style={{ color, fontSize: 12 }}>{label}</Text>
-        <Text style={{ color, fontWeight: '700', marginTop: 2 }} numberOfLines={1}>{value}</Text>
-    </View>
-);
-
-const s = {
-    header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12, borderBottomWidth: 1 } as const,
-    headerTitle: { fontSize: 20, fontWeight: '800' } as const,
-
-    card: {
-        borderWidth: 1, borderRadius: 16, padding: 14, marginBottom: 12,
-        shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 1,
-    } as const,
-    cardEmoji: { fontSize: 22, marginRight: 10 } as const,
-    title: { fontSize: 16, fontWeight: '800' } as const,
-
-    rolePill: { paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8, borderWidth: 1, marginLeft: 10 } as const,
-
-    metaRow: { flexDirection: 'row', gap: 12, marginTop: 10 } as const,
-
-    actions: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 } as const,
-    btn: { paddingVertical: 10, borderRadius: 10, paddingHorizontal: 12, borderWidth: 1 } as const,
-    btnText: { fontWeight: '700' } as const,
-    btnTextWhite: { color: '#fff', fontWeight: '700' } as const,
-    iconBtn: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1 } as const,
-
-    fabWrap: { position: 'absolute', right: 16, bottom: 20 } as const,
-    fab: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', shadowOpacity: 0.15, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 3 } as const,
+type Org = {
+  id: string;
+  name: string;
+  code: string;
+  domain?: string;          // เช่น app.laloei.com หรือ org.laloei.com
+  plan: OrgPlan;
+  membersCount: number;
+  membersLimit: number;
+  storageUsedMB: number;
+  storageLimitMB: number;
+  nextBillingDate?: string; // YYYY-MM-DD
+  createdAt: string;
+  logoText?: string;        // ใช้เป็นอักษรย่อโลโก้
 };
 
-function palette(scheme: ReturnType<typeof useColorScheme>) {
-    const isDark = scheme === 'dark';
-    return {
-        primary: '#0EA5E9',
-        bg: isDark ? '#0b1220' : '#f5f7fb',
-        card: isDark ? '#0f172a' : '#ffffff',
-        cardBorder: isDark ? '#1f2a44' : '#e5e7eb',
-        text: isDark ? '#e5e7eb' : '#0b1220',
-        subtle: isDark ? '#7c8aa0' : '#6b7280',
-        muted: isDark ? '#9aa4b2' : '#374151',
-        border: isDark ? '#1f2a44' : '#e5e7eb',
-        headerBg: isDark ? '#0b1220' : '#ffffff',
-        headerText: isDark ? '#e5e7eb' : '#0b1220',
-        headerBorder: isDark ? '#1f2a44' : '#e5e7eb',
-        ghost: isDark ? '#111827' : '#f3f4f6',
-        shadow: isDark ? '#000' : '#111827',
-    };
-}
+type Member = { id: string; name: string; role: string };
+type Invite = { id: string; email: string; role: string; sentAt: string };
 
-function roleBg(role?: OrganizationModel['role']) {
-    switch (role) {
-        case 'owner': return '#22C55E';
-        case 'admin': return '#F59E0B';
-        case 'approver': return '#6366F1';
-        case 'hr': return '#14B8A6';
-        default: return '#9CA3AF';
+//http://localhost:3003/api/v1/organizations/4f19b276-4629-4179-895a-951577c3e98f
+const mockOrg: Org = {
+  id: 'org_001',
+  name: 'Laloei Co., Ltd.',
+  code: 'LALOEI',
+  domain: 'app.laloei.com',
+  plan: 'Starter',
+  membersCount: 8,
+  membersLimit: 15,
+  storageUsedMB: 320,
+  storageLimitMB: 1024,
+  nextBillingDate: '2025-11-01',
+  createdAt: '2025-09-15',
+  logoText: 'LA',
+};
+
+// {
+//   "id": "4f19b276-4629-4179-895a-951577c3e98f",
+//   "name": "laloei Co., Ltd.",
+//   "slug": "app",
+//   "domain": "laloei.com",
+//   "owner_user_id": "9c25a948-2a34-44d9-bac7-fc900072ea90",
+//   "billing_email": "billing@laloei.com",
+//   "billing_name": null,
+//   "tax_id": null,
+//   "phone": null,
+//   "timezone": "Asia/Bangkok",
+//   "locale": "th-TH",
+//   "address": null,
+//   "plan_code": "PRO",
+//   "status": "active",
+//   "settings": {},
+//   "created_at": "2025-10-16T07:56:38.941Z",
+//   "created_by": null,
+//   "updated_at": "2025-10-16T07:56:38.941Z",
+//   "updated_by": null,
+//   "deleted_at": null,
+//   "deleted_by": null
+// }
+
+
+  const quickItems = [
+    { key: 'invite', label: 'เชิญสมาชิก', icon: <Ionicons name="person-add-outline" size={18} /> },
+    { key: 'upgrade', label: 'อัปเกรดแผน', icon: <Ionicons name="sparkles-outline" size={18} /> },
+    { key: 'billing', label: 'บิล/ชำระเงิน', icon: <Ionicons name="card-outline" size={18} /> },
+    { key: 'teams', label: 'ทีม/โครงสร้าง', icon: <MaterialCommunityIcons name="sitemap-outline" size={18} /> },
+    { key: 'leavetype', label: 'ประเภทการลา', icon: <Ionicons name="calendar-outline" size={18} /> },
+    { key: 'settings', label: 'ตั้งค่าระบบ', icon: <Ionicons name="settings-outline" size={18} /> },
+  ];
+
+const mockMembers: Member[] = [
+  { id: 'u1', name: 'โยธารักษ์ ผลาโชติ', role: 'OWNER' },
+  { id: 'u2', name: 'สุภาวดี มณีโชติ', role: 'HR ADMIN' },
+  { id: 'u3', name: 'ธนพล สุขดี', role: 'LINE MANAGER' },
+  { id: 'u4', name: 'ชนิกา จันทร์เพ็ญ', role: 'EMPLOYEE' },
+];
+
+const mockInvites: Invite[] = [
+  { id: 'i1', email: 'newuser1@example.com', role: 'EMPLOYEE', sentAt: '2025-10-15' },
+  { id: 'i2', email: 'manager@example.com', role: 'LINE MANAGER', sentAt: '2025-10-14' },
+];
+
+export default function MyOrganizationScreen() {
+  const [org] = useState<Org>(mockOrg);
+  const [members] = useState<Member[]>(mockMembers);
+  const [invites] = useState<Invite[]>(mockInvites);
+
+    const nav = useNavigation<NavigationProp<ProfileStackParamList>>();
+  
+
+
+  const memberUsage = useMemo(
+    () => Math.min(100, Math.round((org.membersCount / org.membersLimit) * 100)),
+    [org.membersCount, org.membersLimit]
+  );
+  const storageUsage = useMemo(
+    () => Math.min(100, Math.round((org.storageUsedMB / org.storageLimitMB) * 100)),
+    [org.storageUsedMB, org.storageLimitMB]
+  );
+
+  const planColor = useMemo(() => {
+    switch (org.plan) {
+      case 'Starter': return '#22c55e';
+      case 'Pro': return '#0ea5e9';
+      case 'Premium': return '#a855f7';
+      default: return '#0ea5e9';
     }
+  }, [org.plan]);
+
+
+    const onQuickPress = (key: string) => {
+    switch (key) {
+      case 'invite':
+        // ไปหน้าชวนสมาชิก
+        return nav.navigate('InviteMember');
+      case 'upgrade':
+        // ไปหน้าอัปเกรดแผน/แพคเกจ
+        return nav.navigate('UpgradePlan');
+      case 'billing':
+        // ไปหน้าบิล/ชำระเงิน
+        return nav.navigate('Billing');
+      case 'teams':
+        // ไปจัดการทีม/โครงสร้าง
+        return nav.navigate('TeamStructure');
+      case 'leavetype':
+        // ไปจัดการประเภทการลา
+        return nav.navigate('LeaveType' as never); // แปลงเป็น never ชั่วคราว
+      case 'settings':
+        // ไปตั้งค่าระบบขององค์กร
+        return nav.navigate('Settings' as never); // แปลงเป็น never ชั่วคราว
+      default:
+        return Alert.alert('ยังไม่รองรับ', `ยังไม่ได้เชื่อม route ของ "${key}"`);
+    }
+  };
+return (
+  <View style={S.container}>
+    <StatusBar barStyle="dark-content" />
+
+    <FlatList
+      data={[
+        { type: 'members' },
+        ...(invites.length ? [{ type: 'invites' as const }] : []),
+        { type: 'orgActions' },
+        { type: 'activity' },
+      ]}
+      keyExtractor={(_, i) => String(i)}
+      contentContainerStyle={S.bodyPad}
+      ListHeaderComponent={
+        <LinearGradient
+          colors={['#EAF5FF', '#EAFBF4']}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={S.headerGrad}
+        >
+          <View style={S.headerTop}>
+            <Text style={[S.headerTitle, {fontFamily: FONT.headingBold}]}>องค์กรของฉัน</Text>
+            <TouchableOpacity style={S.iconBtn} onPress={() => {}}>
+              <Ionicons name="settings-outline" size={20} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={S.orgRow}>
+            <View style={S.logoCircle}>
+              <Text style={[S.logoText, { fontFamily: FONT.headingBold }]}>{org.logoText ?? 'ORG'}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[S.orgName, { fontFamily: FONT.bodyBold }]}>{org.name}</Text>
+              <Text style={[S.orgSub, { fontFamily: FONT.body }]}>
+                รหัสองค์กร: <Text style={S.bold}>{org.code}</Text>
+              </Text>
+              {!!org.domain && (
+                <Text style={[S.orgSub, { fontFamily: FONT.body }]}>
+                  โดเมน: <Text style={S.bold}>{org.domain}</Text>
+                </Text>
+              )}
+            </View>
+            <View style={[S.planBadge, { backgroundColor: planColor + '22', borderColor: planColor }]}>
+              <Text style={[S.planText, { color: planColor }]}>{org.plan}</Text>
+            </View>
+          </View>
+
+          <View style={S.metricsCard}>
+            <View style={S.metricBlock}>
+              <View style={S.metricRow}>
+                <MaterialCommunityIcons name="account-group-outline" size={18} />
+                <Text style={[S.metricLabel, { fontFamily: FONT.bodyBold }]}>จำนวนสมาชิก</Text>
+                <Text style={[S.metricValue, { fontFamily: FONT.body }]}>
+                  {org.membersCount}/{org.membersLimit}
+                </Text>
+              </View>
+              <Progress value={memberUsage} />
+            </View>
+
+            <View style={S.divider} />
+
+            <View style={S.metricBlock}>
+              <View style={S.metricRow}>
+                <Ionicons name="cloud-outline" size={18} />
+                <Text style={[S.metricLabel, { fontFamily: FONT.bodyBold }]}>พื้นที่จัดเก็บ</Text>
+                <Text style={[S.metricValue, { fontFamily: FONT.body }]}>
+                  {org.storageUsedMB}/{org.storageLimitMB} MB
+                </Text>
+              </View>
+              <Progress value={storageUsage} />
+            </View>
+
+            {!!org.nextBillingDate && (
+              <View style={S.billingRow}>
+                <Ionicons name="card-outline" size={16} />
+                <Text style={[S.billingText, { fontFamily: FONT.body }]}>
+                  รอบบิลถัดไป: <Text style={S.bold}>{formatDate(org.nextBillingDate)}</Text>
+                </Text>
+                <TouchableOpacity style={S.linkBtn} onPress={() => {}}>
+                  <Text style={[S.linkText, { fontFamily: FONT.body }]}>ดูบิล</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          <QuickActions items={quickItems} onPress={onQuickPress} />
+        </LinearGradient>
+      }
+      renderItem={({ item }) => {
+        switch (item.type) {
+          case 'members':
+            return (
+              <Section title="สมาชิกหลัก (ล่าสุด)">
+                {/* map ธรรมดา แทน FlatList ด้านใน */}
+                {members.slice(0, 4).map((m, idx) => (
+                  <React.Fragment key={m.id}>
+                    <RowItem
+                      icon={<Ionicons name="person-circle-outline" size={22} />}
+                      title={m.name}
+                      subtitle={m.role}
+                      trailing={
+                        <TouchableOpacity onPress={() => {}}>
+                          <Ionicons name="chevron-forward" size={20} />
+                        </TouchableOpacity>
+                      }
+                    />
+                    {idx < Math.min(4, members.length) - 1 && <View style={S.rowSep} />}
+                  </React.Fragment>
+                ))}
+                <View style={S.rowBetween}>
+                  <GhostButton label="ดูสมาชิกทั้งหมด" onPress={() => {}} />
+                  <PrimaryButton label="เชิญสมาชิก" onPress={() => {}} />
+                </View>
+              </Section>
+            );
+
+          case 'invites':
+            return (
+              <Section title="คำเชิญที่รอการยืนยัน">
+                {invites.map((it, idx) => (
+                  <React.Fragment key={it.id}>
+                    <RowItem
+                      icon={<Ionicons name="mail-unread-outline" size={20} />}
+                      title={it.email}
+                      subtitle={`บทบาท: ${it.role} • ส่งเมื่อ ${formatDate(it.sentAt)}`}
+                      trailing={
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                          <TouchableOpacity onPress={() => {}}>
+                            <Text style={[S.linkText, { fontFamily: FONT.body }]}>ส่งซ้ำ</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => {}}>
+                            <Text style={[S.linkText, { color: '#ef4444', fontFamily: FONT.body }]}>ยกเลิก</Text>
+                          </TouchableOpacity>
+                        </View>
+                      }
+                    />
+                    {idx < invites.length - 1 && <View style={S.rowSep} />}
+                  </React.Fragment>
+                ))}
+              </Section>
+            );
+
+          case 'orgActions':
+            return (
+              <Section title="การจัดการองค์กร">
+                <GridActions
+                  items={[
+                    { key: 'edit', label: 'แก้ไขข้อมูล', icon: <Ionicons name="create-outline" size={18} />, onPress: () => {} },
+                    { key: 'dept', label: 'แผนก', icon: <Ionicons name="business-outline" size={18} />, onPress: () => {} },
+                    { key: 'pos', label: 'ตำแหน่งงาน', icon: <Ionicons name="briefcase-outline" size={18} />, onPress: () => {} },
+                    { key: 'approver', label: 'อนุมัติลา', icon: <Ionicons name="checkmark-done-outline" size={18} />, onPress: () => {} },
+                    { key: 'policy', label: 'นโยบาย/สิทธิ์ลา', icon: <Ionicons name="document-text-outline" size={18} />, onPress: () => {} },
+                    { key: 'integrations', label: 'Integrations', icon: <Ionicons name="link-outline" size={18} />, onPress: () => {} },
+                  ]}
+                />
+              </Section>
+            );
+
+          case 'activity':
+            return (
+              <Section title="กิจกรรมล่าสุด">
+                <RowItem
+                  icon={<Ionicons name="time-outline" size={20} />}
+                  title="อนุมัติคำขอลาของ ชนิกา จันทร์เพ็ญ"
+                  subtitle="เมื่อ 2 ชั่วโมงที่ผ่านมา"
+                />
+                <View style={S.rowSep} />
+                <RowItem
+                  icon={<Ionicons name="time-outline" size={20} />}
+                  title="เพิ่มสมาชิก: manager@example.com"
+                  subtitle="เมื่อวานนี้"
+                />
+              </Section>
+            );
+
+          default:
+            return null;
+        }
+      }}
+      ListFooterComponent={<View style={{ height: 24 }} />}
+    />
+  </View>
+);
+
 }
 
-function formatDate(iso?: string | null) {
-    if (!iso) return '—';
-    try {
-        const d = new Date(iso);
-        const y = d.getFullYear();
-        const m = `${d.getMonth() + 1}`.padStart(2, '0');
-        const day = `${d.getDate()}`.padStart(2, '0');
-        return `${y}-${m}-${day}`;
-    } catch { return '—'; }
+/** -------- Components -------- */
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <View style={S.section}>
+      <Text style={[S.sectionTitle, { fontFamily: FONT.bodyBold }]}>{title}</Text>
+      <View style={S.sectionBody}>{children}</View>
+    </View>
+  );
 }
+
+function RowItem({
+  icon, title, subtitle, trailing,
+}: { icon?: React.ReactNode; title: string; subtitle?: string; trailing?: React.ReactNode }) {
+  return (
+    <View style={S.row}>
+      <View style={S.rowIcon}>{icon}</View>
+      <View style={{ flex: 1 }}>
+        <Text style={[S.rowTitle, { fontFamily: FONT.bodyBold }]}>{title}</Text>
+        {!!subtitle && <Text style={[S.rowSub, { fontFamily: FONT.body }]}>{subtitle}</Text>}
+      </View>
+      {trailing}
+    </View>
+  );
+}
+
+function Progress({ value }: { value: number }) {
+  return (
+    <View style={S.progressWrap}>
+      <View style={[S.progressBar, { width: `${value}%` }]} />
+    </View>
+  );
+}
+
+function QuickActions({
+  items,
+  onPress,
+}: {
+  items: { key: string; label: string; icon: React.ReactNode }[];
+  onPress?: (key: string) => void;
+}) {
+  return (
+    <View style={S.quickWrap}>
+      {items.map((it) => (
+        <TouchableOpacity key={it.key} style={S.quickItem} onPress={() => onPress?.(it.key)}>
+          <View style={S.quickIcon}>{it.icon}</View>
+          <Text style={[S.quickLabel, { fontFamily: FONT.body }]}>{it.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+function GridActions({ items }: { items: { key: string; label: string; icon: React.ReactNode; onPress: () => void }[] }) {
+  return (
+    <View style={S.grid}>
+      {items.map((it) => (
+        <TouchableOpacity key={it.key} style={S.gridItem} onPress={it.onPress}>
+          <View style={S.gridIcon}>{it.icon}</View>
+          <Text style={[S.gridText, { fontFamily: FONT.body }]}>{it.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+function PrimaryButton({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={S.primaryBtn} onPress={onPress}>
+      <Text style={[S.primaryText, { fontFamily: FONT.bodyBold }]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function GhostButton({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={S.ghostBtn} onPress={onPress}>
+      <Text style={[S.ghostText, { fontFamily: FONT.body }]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function formatDate(yyyyMMdd?: string) {
+  if (!yyyyMMdd) return '-';
+  const [y, m, d] = yyyyMMdd.split('-').map(Number);
+  return `${d}/${m}/${y + 543}`; // แสดง พ.ศ.
+}
+
+/** -------- Styles -------- */
+const S = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f6faf9' },
+  headerGrad: { paddingTop: 12, paddingHorizontal: 16, paddingBottom: 12 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  headerTitle: { fontSize: 20, fontWeight: '700' },
+  iconBtn: { padding: 8, borderRadius: 12, backgroundColor: '#ffffffaa' },
+
+  orgRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6, marginBottom: 12 },
+  logoCircle: {
+    width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#dbeafe',
+  },
+  logoText: { fontWeight: '800', fontSize: 16, color: '#0ea5e9' },
+  orgName: { fontSize: 18, fontWeight: '700' },
+  orgSub: { fontSize: 12, color: '#566' },
+  bold: { fontWeight: '700' },
+
+  planBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
+  planText: { fontSize: 12, fontWeight: '700' },
+
+  metricsCard: {
+    backgroundColor: '#fff', borderRadius: 16, padding: 12, gap: 10,
+    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  },
+  metricBlock: { gap: 6 },
+  metricRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  metricLabel: { fontSize: 13, color: '#334155' },
+  metricValue: { marginLeft: 'auto', fontSize: 13, fontWeight: '700' },
+  divider: { height: 1, backgroundColor: '#eef2f7' },
+  progressWrap: { height: 8, backgroundColor: '#eef2f7', borderRadius: 999, overflow: 'hidden' },
+  progressBar: { height: '100%', backgroundColor: '#0ea5e9', borderRadius: 999 },
+
+  billingRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  billingText: { fontSize: 12, color: '#334155' },
+  linkBtn: { marginLeft: 'auto', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  linkText: { color: '#0ea5e9', fontWeight: '700' },
+
+  quickWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  quickItem: {
+    width: '31.5%', backgroundColor: '#ffffff', borderRadius: 14, paddingVertical: 10,
+    alignItems: 'center', justifyContent: 'center', gap: 6,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+  },
+  quickIcon: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  quickLabel: { fontSize: 12, textAlign: 'center' },
+
+  bodyPad: { padding: 16, paddingTop: 8 },
+  section: { marginBottom: 14 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', marginBottom: 8 },
+  sectionBody: { backgroundColor: '#fff', borderRadius: 16, padding: 10, gap: 8 },
+
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+  rowIcon: {
+    width: 34, height: 34, borderRadius: 17, backgroundColor: '#f1f5f9',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  rowTitle: { fontSize: 14, fontWeight: '700' },
+  rowSub: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  rowSep: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 4 },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+
+  primaryBtn: { backgroundColor: '#0ea5e9', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12 },
+  primaryText: { color: '#fff', fontWeight: '800' },
+
+  ghostBtn: { paddingVertical: 10, paddingHorizontal: 16 },
+  ghostText: { color: '#0ea5e9', fontWeight: '800' },
+
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  gridItem: {
+    width: '31.5%', backgroundColor: '#ffffff', borderRadius: 14, paddingVertical: 12,
+    alignItems: 'center', justifyContent: 'center', gap: 6,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+  },
+  gridIcon: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  gridText: { fontSize: 12, textAlign: 'center' },
+});

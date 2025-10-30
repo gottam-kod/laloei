@@ -1,8 +1,8 @@
 import React, { memo, ReactNode } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { UI } from '../theme/theme';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { UI } from '../theme/token';
 
 export type QuickAction = {
   badge: ReactNode;
@@ -30,10 +30,10 @@ export const QuickActions = memo(function QuickActions({items,onPress}:{items:Qu
           style={({pressed})=>[
             S.tileFloat, pressed ? S.liftPressed : S.liftIdle
           ]}
-          android_ripple={{color:'#e9eef4'}}
+          android_ripple={{color:'#d5dce4ff'}}
         >
           <View style={S.tileIconWrap}>
-            <LinearGradient colors={['#FFFFFF','#F7FBFF']} start={{x:0,y:0}} end={{x:1,y:1}} style={S.tileIcon}>
+            <LinearGradient colors={['#FFFFFF','#51c7e8ff']} start={{x:0,y:0}} end={{x:1,y:1}} style={S.tileIcon}>
               <Ionicons name={it.icon} size={18} color={UI.color.text}/>
             </LinearGradient>
           </View>
@@ -46,11 +46,6 @@ export const QuickActions = memo(function QuickActions({items,onPress}:{items:Qu
     </View>
   );
 });
-
-function getItemSize(columns: number) {
-  const pct = 100 / columns - 2; // เว้นช่องว่างเล็กน้อย
-  return { width: `${pct}%` as any };
-}
 
 const S = StyleSheet.create({
    /* Quick */

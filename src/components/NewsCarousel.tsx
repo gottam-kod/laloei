@@ -1,7 +1,7 @@
 import { memo } from "react";
-import { Pressable, View, Text, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { UI } from "../theme/theme";
+import { UI } from "../theme/token";
 
 // Define the News type
 type News = {

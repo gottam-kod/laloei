@@ -2,6 +2,35 @@ import axios from 'axios';
 import { instanceAxios } from '../axios';
 import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
 import { OrganizationModel } from '@/src/interface/organization';
+import { Role } from '@/src/auth/roles';
+
+// export class InviteMemberDto {
+//   @ApiProperty({ format: 'uuid', example: '7c531fa1-c5c0-496a-9129-72958f2a9c2d', description: 'org_id จากตาราง organizations' })
+//   @IsUUID()
+//   org_id!: string;
+
+//   @ApiProperty({ example: ['bb_org@gmail.com'] })
+//   @IsEmail({}, { each: true })
+//   email!: string[];
+
+//   @ApiProperty({ format: 'uuid', example: 'f4b7db8c-a55d-452b-84da-3dffdfbeeb9b', description: 'role_id จากตาราง roles' })
+//   @IsUUID()
+//   role_id!: string;
+
+//   @ApiPropertyOptional({ maxLength: 500, example: 'เชิญเข้าร่วมทีม HR ครับ' })
+//   @IsOptional()
+//   @IsString()
+//   @Length(0, 500)
+//   message?: string;
+// }
+
+interface InviteMembersParams {
+  email: string[];
+  org_id: string;
+  role_id: string;
+  message: string;
+  expireDays: number;
+}
 
 // POST /orgs
 export async function createOrganization(
@@ -141,4 +170,35 @@ export async function getOrganization(
     if (err?.name === 'AbortError') throw err; // ถูกยกเลิก
     throw new ApiError('Network error', 0);
   }
+}
+
+export async function inviteUser(params: InviteMembersParams): Promise<any> {
+  try {
+    console.log('inviteUser params', params);
+    const res = await instanceAxios.post(
+      `/organizations/invite`,
+      params,
+      {
+        timeout: 10000,
+        headers: { 'Content-Type': 'application/json', accept: '*/*' },
+      }
+    );
+    return res.data;
+  } catch (err: any) {
+
+    if (axios.isAxiosError(err)) {
+
+      console.log('inviteUser error ================> ', err.message);
+      const status = err.response?.status ?? 0;
+      const data = err.response?.data;
+      const message =
+        (data as any)?.message ||
+        (data as any)?.error ||
+        (status === 401 ? 'Unauthorized' : err.message || 'Request failed');
+      throw new ApiError(message, status, data);
+    }
+    if (err?.name === 'AbortError') throw err; // ถูกยกเลิก
+    throw new ApiError('Network error', 0);
+  }
+  
 }

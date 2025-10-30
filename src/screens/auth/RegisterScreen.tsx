@@ -1,44 +1,49 @@
-import React, { useMemo, useState } from 'react';
+// screens/RegisterScreen.tsx
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { AuthStackParamList } from '@/src/navigation/RootStackParamList';
-import { COLOR } from '@/src/theme/theme';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { register } from '@/src/connections/auth/authApi';
+import { AuthStackParamList } from '@/src/navigation/RootStackParamList';
+import { COLOR } from '@/src/theme/token';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const R = 16;
+const CARD_R = 24;
+const INPUT_R = 16;
 
 export default function RegisterScreen() {
   const nav = useNavigation<NavigationProp<AuthStackParamList>>();
-  const { t, i18n } = useTranslation();
 
-  // form state
-  const [firstName, setFirst] = useState('โยธนภพ');
-  const [lastName, setLast] = useState('ทวี');
-  const [email, setEmail] = useState('org@gmail.com');
-  const [phone, setPhone] = useState('0959839411'); // optional (E.164)
-  const [password, setPw] = useState('P@ssw0rd123');
-  const [confirm, setConfirm] = useState('P@ssw0rd123');
-  const [tos, setTos] = useState(true);
+  // --- form state ---
+  const [firstName, setFirst] = useState('');
+  const [lastName, setLast] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState(''); // optional E.164
+  const [password, setPw] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [tos, setTos] = useState(false);
   const [marketing, setMarketing] = useState(true);
 
+  // password toggles
   const [showPw, setShowPw] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const submitting = useRef(false);
 
-  // validation
+  // --- validation ---
   const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim().toLowerCase()), [email]);
   const phoneOk = useMemo(() => phone === '' || /^\+?[0-9]{7,15}$/.test(phone.trim()), [phone]);
   const pwOk = useMemo(() => password.length >= 8, [password]);
@@ -46,27 +51,16 @@ export default function RegisterScreen() {
 
   const canSubmit = emailOk && phoneOk && pwOk && matchOk && tos && !loading;
 
-  const onSubmit = async () => {
-    if (!canSubmit) return;
+  const onSubmit = useCallback(async () => {
+    if (!canSubmit || submitting.current) return;
     setErr(null);
+    submitting.current = true;
+    setLoading(true);
     try {
-      setLoading(true);
-      // TODO: ต่อ API จริง /auth/register
-//       export async function register(
-//   payload: {
-//     firstName: string;
-//     lastName: string;
-//     email: string;
-//     phone?: string;
-//     password: string;
-//     confirmPassword: string;
-//     tosAgreed: boolean;
-//     marketingOptIn: boolean;
-//   },
       await register({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        name: (firstName.trim() + ' ' + lastName.trim()).trim(),
+        name: `${firstName.trim()} ${lastName.trim()}`.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim() || undefined,
         password,
@@ -74,160 +68,142 @@ export default function RegisterScreen() {
         tosAgreed: tos,
         marketingOptIn: marketing,
       });
-      // สำเร็จ
-      console.log('Registration successful');
-
-      // ไปหน้า login
       nav.navigate('AuthEmailLogin');
     } catch (e: any) {
-      setErr(String(e?.message ?? 'Register failed'));
+      setErr(String(e?.response?.data?.message ?? e?.message ?? 'Register failed'));
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
-  };
+  }, [canSubmit, firstName, lastName, email, phone, password, confirm, tos, marketing, nav]);
 
   return (
-    <View style={styles.root}>
-      {/* Soft gradient background */}
+    <View style={{ flex: 1 }}>
+      {/* BG gradient + bubbles = mood เดียวกับ Login */}
       <LinearGradient
         colors={[COLOR.bgTop, COLOR.bgBottom]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
+      <View style={styles.bubbleA} />
+      <View style={styles.bubbleB} />
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.select({ ios: 'padding', android: undefined })}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Brand / Header card */}
-          <View style={[styles.heroCard, styles.cardShadow]}>
-            <View style={styles.brandRow}>
-              <LinearGradient
-                colors={[COLOR.teal, COLOR.orange]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.brandBadge}
-              >
-                <Text style={styles.brandBadgeText}>L</Text>
-              </LinearGradient>
-              <Text style={styles.brandTitle}>
-                {t('auth.createAccount', 'สร้างบัญชีใหม่')}
-              </Text>
-            </View>
-            <Text style={styles.brandSub}>
-              {t('auth.registerSubtitle', 'ลงทะเบียนใช้งาน Laloei ฟรีภายในไม่กี่ขั้นตอน')}
-            </Text>
-          </View>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.select({ ios: 'padding', android: undefined })}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <Text style={styles.pageTitle}>สมัครสมาชิก</Text>
 
-          {/* Form card */}
-          <View style={[styles.formCard, styles.cardShadow]}>
+          {/* glass card */}
+          <View style={[styles.card, styles.cardShadow]}>
+            <Text style={styles.cardTitle}>สร้างบัญชีใหม่</Text>
+            <Text style={styles.cardSub}>กรอกข้อมูลให้ครบถ้วนเพื่อเริ่มต้นใช้งาน Laloei</Text>
+
             <Field
               iconLeft={<Ionicons name="person-outline" size={20} color={COLOR.dim} />}
-              placeholder={t('auth.firstName', 'ชื่อ')}
+              placeholder="ชื่อ"
               value={firstName}
               onChangeText={setFirst}
-              autoCapitalize="words"
               returnKeyType="next"
+              autoCapitalize="words"
             />
             <Field
               iconLeft={<Ionicons name="person-outline" size={20} color={COLOR.dim} />}
-              placeholder={t('auth.lastName', 'นามสกุล')}
+              placeholder="นามสกุล"
               value={lastName}
               onChangeText={setLast}
-              autoCapitalize="words"
               returnKeyType="next"
+              autoCapitalize="words"
             />
             <Field
               iconLeft={<Ionicons name="mail-outline" size={20} color={COLOR.dim} />}
               placeholder="email@example.com"
               value={email}
               onChangeText={setEmail}
-              autoCapitalize="none"
               keyboardType="email-address"
-              error={!emailOk && email.length > 0 ? t('auth.invalidEmail', 'อีเมลไม่ถูกต้อง') : undefined}
+              autoCapitalize="none"
+              error={!emailOk && email.length > 0 ? 'อีเมลไม่ถูกต้อง' : undefined}
+              returnKeyType="next"
             />
             <Field
               iconLeft={<Ionicons name="call-outline" size={20} color={COLOR.dim} />}
-              placeholder={t('auth.phoneOptional', 'เบอร์โทร (ไม่บังคับ) เช่น +66912345678')}
+              placeholder="เบอร์โทร (ไม่บังคับ) เช่น +66912345678"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
-              error={!phoneOk && phone.length > 0 ? t('auth.invalidPhone', 'เบอร์ไม่ถูกต้อง') : undefined}
+              error={!phoneOk && phone.length > 0 ? 'เบอร์ไม่ถูกต้อง' : undefined}
+              returnKeyType="next"
             />
 
+            {/* password — fix บั๊กพิมพ์ได้ตัวเดียว */}
             <Field
+              key={showPw ? 'pw-show' : 'pw-hide'}
               iconLeft={<Ionicons name="lock-closed-outline" size={20} color={COLOR.dim} />}
-              placeholder={t('auth.password', 'รหัสผ่าน (อย่างน้อย 8 ตัว)')}
+              placeholder="รหัสผ่าน (อย่างน้อย 8 ตัว)"
               value={password}
               onChangeText={setPw}
               secureTextEntry={!showPw}
               right={
-                <TouchableOpacity onPress={() => setShowPw((v) => !v)}>
+                <Pressable onPress={() => setShowPw(v => !v)} accessibilityLabel="togglePassword">
                   <Ionicons name={showPw ? 'eye-off-outline' : 'eye-outline'} size={20} color={COLOR.dim} />
-                </TouchableOpacity>
+                </Pressable>
               }
-              error={!pwOk && password.length > 0 ? t('auth.passwordTooShort', 'ต้องมีอย่างน้อย 8 ตัวอักษร') : undefined}
+              error={!pwOk && password.length > 0 ? 'รหัสผ่านสั้นเกินไป' : undefined}
+              returnKeyType="next"
             />
 
             <Field
+              key={showConfirm ? 'cpw-show' : 'cpw-hide'}
               iconLeft={<MaterialCommunityIcons name="lock-check-outline" size={20} color={COLOR.dim} />}
-              placeholder={t('auth.confirmPassword', 'ยืนยันรหัสผ่าน')}
+              placeholder="ยืนยันรหัสผ่าน"
               value={confirm}
               onChangeText={setConfirm}
-              secureTextEntry
-              error={!matchOk && confirm.length > 0 ? t('auth.passwordNotMatch', 'รหัสผ่านไม่ตรงกัน') : undefined}
+              secureTextEntry={!showConfirm}
+              right={
+                <Pressable onPress={() => setShowConfirm(v => !v)} accessibilityLabel="toggleConfirmPassword">
+                  <Ionicons name={showConfirm ? 'eye-off-outline' : 'eye-outline'} size={20} color={COLOR.dim} />
+                </Pressable>
+              }
+              error={!matchOk && confirm.length > 0 ? 'รหัสผ่านไม่ตรงกัน' : undefined}
+              returnKeyType="done"
+              onSubmitEditing={onSubmit}
+              blurOnSubmit
             />
 
-            {/* Check rows */}
             <CheckRow
               checked={tos}
-              onToggle={() => setTos((v) => !v)}
-              label={t('auth.acceptTos', 'ฉันยอมรับข้อตกลงการใช้งานและนโยบายความเป็นส่วนตัว')}
+              onToggle={() => setTos(v => !v)}
+              label="ฉันยอมรับข้อตกลงการใช้งานและนโยบายความเป็นส่วนตัว"
             />
             <CheckRow
               checked={marketing}
-              onToggle={() => setMarketing((v) => !v)}
-              label={t('auth.allowMarketing', 'ยินยอมรับข่าวสาร/สิทธิพิเศษ (เลือกได้)')}
+              onToggle={() => setMarketing(v => !v)}
+              label="ยินยอมรับข่าวสาร/สิทธิพิเศษ (เลือกได้)"
               subtle
             />
 
             {err && <Text style={styles.errText}>{err}</Text>}
 
-            {/* Primary CTA */}
-            <TouchableOpacity
-              activeOpacity={0.9}
-              disabled={!canSubmit}
-              onPress={onSubmit}
-              style={[styles.btnShadow, { marginTop: 14 }]}
-            >
-              <LinearGradient
-                colors={canSubmit ? [COLOR.teal, COLOR.orange] : ['#C9D2D6', '#C9D2D6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.btnPrimary}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.btnPrimaryText}>
-                    {t('auth.register', 'สมัครสมาชิก')}
-                  </Text>
-                )}
+            {/* CTA gradient ให้ฟีลเดียวกับ Login */}
+            <Pressable disabled={!canSubmit} onPress={onSubmit} style={[{ marginTop: 14 }, !canSubmit && { opacity: 0.6 }]}>
+              <LinearGradient colors={[COLOR.primary, COLOR.teal]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.btn}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>สมัครสมาชิก</Text>}
               </LinearGradient>
-            </TouchableOpacity>
+            </Pressable>
 
-            {/* Login link */}
-            <TouchableOpacity onPress={() => nav.navigate('AuthEmailLogin')} style={{ marginTop: 12 }}>
-              <Text style={styles.loginLink}>
-                {t('auth.alreadyHaveAccount', 'มีบัญชีอยู่แล้ว?')}{' '}
-                <Text style={styles.loginLinkStrong}>{t('auth.login', 'เข้าสู่ระบบ')}</Text>
-              </Text>
-            </TouchableOpacity>
+            {/* Divider “หรือ” */}
+            <View style={styles.divider}>
+              <View style={styles.divLine} />
+              <Text style={styles.divText}>หรือ</Text>
+              <View style={styles.divLine} />
+            </View>
+
+            {/* secondary: ไปหน้า Login */}
+            <Pressable onPress={() => nav.navigate('AuthEmailLogin')} style={styles.altBtn}>
+              <View style={styles.altBtnInner}>
+                <View style={styles.altDot} />
+                <Text style={styles.altText}>เข้าสู่ระบบ</Text>
+              </View>
+            </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -235,20 +211,8 @@ export default function RegisterScreen() {
   );
 }
 
-/* ====== Small UI helpers ====== */
+/* ---------------- Helpers ---------------- */
 
-type FieldProps = {
-  iconLeft?: React.ReactNode;
-  right?: React.ReactNode;
-  placeholder?: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  secureTextEntry?: boolean;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  keyboardType?: any;
-  returnKeyType?: any;
-  error?: string;
-};
 function Field({
   iconLeft,
   right,
@@ -260,23 +224,52 @@ function Field({
   keyboardType,
   returnKeyType,
   error,
-}: FieldProps) {
+  onSubmitEditing,
+  blurOnSubmit,
+}: {
+  iconLeft?: React.ReactNode;
+  right?: React.ReactNode;
+  placeholder?: string;
+  value: string;
+  onChangeText: (v: string) => void;
+  secureTextEntry?: boolean;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  keyboardType?: any;
+  returnKeyType?: any;
+  error?: string;
+  onSubmitEditing?: () => void;
+  blurOnSubmit?: boolean;
+}) {
   return (
-    <View style={{ marginTop: 10 }}>
-      <View style={[styles.inputWrap, error ? styles.inputWrapError : undefined]}>
-        {!!iconLeft && <View style={styles.iconLeft}>{iconLeft}</View>}
+    <View style={{ marginTop: 12 }}>
+      <View style={[styles.inputWrap, !!error && styles.inputWrapError]}>
+        {!!iconLeft && (
+          <View style={styles.iconLeft} pointerEvents="none">
+            {iconLeft}
+          </View>
+        )}
         <TextInput
           placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry}
-          autoCapitalize={autoCapitalize}
-          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize ?? 'none'}
+          autoCorrect={false}
+          keyboardType={keyboardType ?? 'default'}
           returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
+          blurOnSubmit={blurOnSubmit}
+          autoComplete={secureTextEntry ? 'password' : 'off'}
+          textContentType={secureTextEntry ? 'password' : 'none'}
+          maxLength={128}
           style={styles.input}
           placeholderTextColor={COLOR.dim}
         />
-        {!!right && <View style={styles.iconRight}>{right}</View>}
+        {!!right && (
+          <View style={styles.iconRight} pointerEvents="box-none">
+            {right}
+          </View>
+        )}
       </View>
       {!!error && <Text style={styles.errSmall}>{error}</Text>}
     </View>
@@ -295,101 +288,116 @@ function CheckRow({
   subtle?: boolean;
 }) {
   return (
-    <TouchableOpacity style={styles.checkRow} onPress={onToggle} activeOpacity={0.7}>
+    <Pressable style={styles.checkRow} onPress={onToggle}>
       <View style={[styles.checkBox, checked && styles.checkBoxOn]}>
         {checked && <Ionicons name="checkmark" size={16} color="#fff" />}
       </View>
       <Text style={[styles.checkLabel, subtle && { color: COLOR.dim }]}>{label}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
-/* ====== Styles ====== */
+/* ---------------- Styles ---------------- */
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
+  scroll: { padding: 16, paddingTop: 18 },
+  pageTitle: { textAlign: 'center', fontSize: 18, fontWeight: '800', color: COLOR.text, marginBottom: 10 },
 
-  scrollContent: {
-    padding: 18,
-    paddingTop: 28,
-  },
-
-  heroCard: {
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 24,
-    padding: 18,
-    marginBottom: 14,
-  },
-  brandRow: { flexDirection: 'row', alignItems: 'center' },
-  brandBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  brandBadgeText: { color: '#fff', fontWeight: '900', fontSize: 18 },
-  brandTitle: { fontSize: 22, fontWeight: '900', color: COLOR.text },
-  brandSub: { color: COLOR.dim, marginTop: 6 },
-
-  formCard: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
+  // glass card
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.35)',
+    borderRadius: CARD_R,
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.6)',
   },
+  cardShadow: {
+    shadowColor: '#000',
+    shadowOpacity: 0.10,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
+  },
+  cardTitle: { fontSize: 18, fontWeight: '900', color: COLOR.text },
+  cardSub: { color: COLOR.dim, marginTop: 4, marginBottom: 6 },
 
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: R,
+    borderRadius: INPUT_R,
     borderWidth: 1,
-    borderColor: COLOR.line,
-    backgroundColor: '#fff',
+    borderColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     paddingHorizontal: 12,
-    height: 52,
+    minHeight: 50,
   },
   inputWrapError: { borderColor: '#D92D20' },
+  input: { flex: 1, fontSize: 16, color: COLOR.text, paddingVertical: 12 },
   iconLeft: { marginRight: 8 },
   iconRight: { marginLeft: 8 },
-  input: { flex: 1, fontSize: 16, color: COLOR.text },
 
   checkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
   checkBox: {
-    width: 22, height: 22, borderRadius: 7,
-    borderWidth: 1, borderColor: COLOR.line,
-    alignItems: 'center', justifyContent: 'center',
-    marginRight: 10, backgroundColor: '#fff',
+    width: 22,
+    height: 22,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   checkBoxOn: { backgroundColor: COLOR.teal, borderColor: COLOR.teal },
   checkLabel: { flex: 1, color: COLOR.text },
 
-  btnPrimary: {
-    height: 54,
-    borderRadius: R,
+  btn: { height: 52, borderRadius: INPUT_R, alignItems: 'center', justifyContent: 'center' },
+  btnText: { color: '#fff', fontSize: 16, fontWeight: '900' },
+
+  divider: { flexDirection: 'row', alignItems: 'center', marginTop: 14 },
+  divLine: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.6)' },
+  divText: { marginHorizontal: 8, color: COLOR.dim },
+
+  altBtn: { marginTop: 10 },
+  altBtnInner: {
+    height: 46,
+    borderRadius: INPUT_R,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.75)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
-  btnPrimaryText: { color: '#fff', fontSize: 16, fontWeight: '900', letterSpacing: 0.3 },
-  btnShadow: {
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-  },
+  altDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLOR.teal, marginRight: 8 },
+  altText: { color: COLOR.text, fontWeight: '700' },
 
   errSmall: { color: '#D92D20', marginTop: 4, fontSize: 12 },
-  errText: { color: '#D92D20', marginTop: 8 },
+  errText: {
+    color: '#D92D20',
+    marginTop: 10,
+    borderRadius: 12,
+    backgroundColor: '#FFF2F2',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
 
-  loginLink: { textAlign: 'center', marginTop: 8, color: COLOR.dim },
-  loginLinkStrong: { color: COLOR.text, fontWeight: '800', textDecorationLine: 'underline' },
-
-  cardShadow: {
-    shadowColor: '#000',
-    shadowOpacity: 0.10,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
+  bubbleA: {
+    position: 'absolute',
+    top: -40,
+    left: -60,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+  },
+  bubbleB: {
+    position: 'absolute',
+    bottom: -60,
+    right: -80,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: 'rgba(255,255,255,0.22)',
   },
 });

@@ -1,95 +1,189 @@
-import React, { memo } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Pressable, GestureResponderEvent } from 'react-native';
+// components/HeaderHeroCard.minimal.tsx
+import React, { useMemo, useState } from 'react';
+import { View, Text, TextInput, Pressable, StyleSheet, Platform, LayoutChangeEvent } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { UI } from '../theme/theme';
 
 type Props = {
-  name: string;
-  role: 'owner' | 'hr' | 'manager' | 'employee';
-  subtitle?: string;            // ใช้แสดงตำแหน่ง/อีเมล ถ้าต้องการ
-  avatarUrl?: string;
-  onPressBell?: () => void;
+  name?: string;
+  onSearch?: (q: string) => void;
+  remainingLeave?: number | string;
+  todayTasks?: number | string;
+  pending?: number | string;
+  placeholder?: string;
 };
 
-const ROLE_LABEL: Record<Props['role'], string> = {
-  owner: 'Owner', hr: 'HR', manager: 'Manager', employee: 'Employee'
-};
+const GAP = 12;
 
-export default function HeaderProfileFlat({ name, role, subtitle, avatarUrl, onPressBell }: Props) {
+export default function HeaderHeroCardMinimal({
+  name = 'พนักงาน',
+  onSearch,
+  remainingLeave = 8,
+  todayTasks = 3,
+  pending = 2,
+  placeholder = 'ค้นหาเมนู งาน หรือคน',
+}: Props) {
+  const [q, setQ] = useState('');
+  const [w, setW] = useState(0);
+
+  const statW = useMemo(() => (w ? Math.floor((w - GAP * 2) / 3) : undefined), [w]);
+
   return (
-    <View style={S.wrap}>
-      <View style={S.left}>
-        <Image
-          source={avatarUrl ? { uri: avatarUrl } : require('@/assets/icon1.png')}
-          style={S.avatar}
-        />
-        <View style={{ flex: 1 }}>
-          <View style={S.row}>
-            <Text style={S.name} numberOfLines={1}>{name}</Text>
-            <View style={S.roleChip}>
-              <Text style={S.roleText}>{ROLE_LABEL[role]}</Text>
-            </View>
-          </View>
-          {!!subtitle && <Text style={S.sub} numberOfLines={1}>{subtitle}</Text>}
+    <View
+      style={[S.card, { backgroundColor: '#EAF7F9' }]}   // ใช้สีพาสเทลจางแทน gradient
+      onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}
+    >
+      <Text style={S.hello}>สวัสดี, {name}.</Text>
+      <Text style={S.title}>วันนี้อยากทำอะไรดี?</Text>
+
+      {/* Search */}
+      <View style={S.searchRow}>
+        <View style={S.searchBox}>
+          <Ionicons name="search" size={18} color="#8FA2AE" />
+          <TextInput
+            value={q}
+            onChangeText={setQ}
+            placeholder={placeholder}
+            placeholderTextColor="#8FA2AE"
+            style={S.input}
+            returnKeyType="search"
+            onSubmitEditing={() => onSearch?.(q.trim())}
+          />
         </View>
+        <Pressable style={S.searchBtn} onPress={() => onSearch?.(q.trim())} hitSlop={HIT}>
+          <Text style={S.searchBtnText}>ค้นหา</Text>
+        </Pressable>
       </View>
-      <TouchableOpacity onPress={onPressBell} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-        <Ionicons name="notifications-outline" size={22} color="#1f2937" />
-      </TouchableOpacity>
+
+      {/* Stats */}
+      <View style={S.statsRow}>
+        <StatBox w={statW} label="คงเหลือวันลา" value={remainingLeave} />
+        <StatBox w={statW} label="งานวันนี้" value={todayTasks} />
+        <StatBox w={statW} label="รออนุมัติ" value={pending} last />
+      </View>
+    </View>
+
+  );
+}
+
+function StatBox({
+  w, label, value, last,
+}: { w?: number; label: string; value: any; last?: boolean }) {
+  return (
+    <View style={[S.statBox, { width: w }, !last && S.mr]}>
+      {/* แถบไฮไลต์บนสุดแบบจาง เพิ่ม premium touch */}
+      <View style={S.statAccent} />
+      <Text style={S.statLabel} numberOfLines={1}>{label}</Text>
+      <Text style={S.statValue}>{String(value)}</Text>
     </View>
   );
 }
-export const HeaderBar = memo(function HeaderBar({
-  avatar, name, role, onPressBell
-}: {
-  avatar: any;
-  name: string;
-  role: string;
-  onPressBell?: () => void;
-}) {
 
-    return (
-    <View style={S.headerFloat}>
-      <View style={S.hLeft}>
-        <View style={S.avatarRing}><Image source={avatar} style={S.avatar}/></View>
-        <View>
-          <Text style={S.name}>{name}</Text>
-          <Text style={S.role}>{role}</Text>
-        </View>
-      </View>
-      <Pressable hitSlop={S.HIT} android_ripple={{color:'#e9eef4'}}>
-        <Ionicons name="notifications-outline" size={22} color={UI.color.text} onPress={onPressBell}/>
-      </Pressable>
-    </View>
-  );
-});
+// Define hitSlop for better touch area
+const HIT = { top: 8, bottom: 8, left: 8, right: 8 };
+
+const R = 22;
 
 const S = StyleSheet.create({
-  wrap: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
- 
-/* Header floating */
-headerFloat:{
-  marginHorizontal:UI.space.lg, marginTop:UI.space.md, marginBottom:UI.space.sm,
-  paddingHorizontal:UI.space.lg, paddingVertical:UI.space.md,
-  borderRadius:UI.radius.xl,
-  backgroundColor:'rgba(255,255,255,0.92)',
-  borderWidth:1, borderColor:'rgba(255,255,255,0.65)',
-  shadowColor:'#0f172a', shadowOpacity:0.08, shadowRadius:12, elevation:2,
-  flexDirection:'row', alignItems:'center', justifyContent:'space-between'
-},
-  HIT:{top:8,bottom:8,left:8,right:8},
-  left: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#e6eef5' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  name: { fontSize: 18, fontWeight: '800', color: '#0f172a', maxWidth: 180 },
-  roleChip: { backgroundColor: '#e6f7f5', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
-  roleText: { fontSize: 12, fontWeight: '700', color: '#0b8f86' },
-  sub: { fontSize: 13, color: '#64748b', marginTop: 2 },
-    hLeft:{ flexDirection:'row', alignItems:'center', gap:UI.space.md },
-  avatarRing:{
-    width:48, height:48, borderRadius:24, alignItems:'center', justifyContent:'center',
-    backgroundColor:'#F1F5FE', borderWidth:1, borderColor:'#E6ECFF'
+  card: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    borderRadius: 24,
+    padding: 16,
+    ...shadow(6),               // เงาบางลง
+    overflow: 'hidden',
   },
-  role:{ fontSize:UI.font.meta, color:UI.color.sub, marginTop:2 },
+  hello: { color: '#1E293B', fontSize: 14, fontWeight: '700' },
+  title: { color: '#0F172A', fontSize: 24, fontWeight: '900', marginTop: 4 },
+
+  searchRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
+  searchBox: {
+    flex: 1,
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    ...shadow(1),
+  },
+  input: { flex: 1, fontSize: 16, color: '#0F172A' },
+  searchBtn: {
+    height: 44,
+    marginLeft: GAP,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#0F172A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+
+  // ปรับระยะแถวสถิติชิดขึ้นเล็กน้อย
+statsRow: {
+  flexDirection: 'row',
+  alignItems: 'stretch',
+  marginTop: 10,
+},
+
+// เวอร์ชันใหม่ — มินิมัล/โปร/สมมาตร
+statBox: {
+  minHeight: 84,
+  borderRadius: 18,
+  backgroundColor: '#FFFFFF',
+  paddingTop: 10,
+  paddingBottom: 12,
+  paddingHorizontal: 14,
+  justifyContent: 'center',
+  // เงาบางให้ยกจากพื้นนิดเดียว
+  ...shadow(2),
+  // เส้นขอบจางมาก (แทบไม่เห็น) ช่วยคม
+  borderWidth: 1,
+  borderColor: '#EEF2F6',
+  // ป้องกัน overflow ตอน iOS ทำเงา
+  overflow: 'hidden',
+},
+// marginRight สำหรับกล่องที่ 1–2 (ไม่ใช้ gap ให้พอดีทุกหน้าจอ)
+mr: { marginRight: 12 },
+
+// แถบไฮไลต์ด้านบน (เนียน ๆ)
+statAccent: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  height: 10,
+  backgroundColor: '#F7FBFF',
+},
+
+// ตัวอักษร
+statLabel: {
+  color: '#5B6775',
+  fontSize: 13,
+  fontWeight: '700',
+  letterSpacing: 0.2,
+},
+statValue: {
+  color: '#0F172A',
+  fontSize: 32,
+  lineHeight: 36,
+  fontWeight: '900',
+  marginTop: 2,                 // ขยับขึ้นให้คอมแพค
+  fontVariant: ['tabular-nums'] // ตัวเลขตรึงความกว้าง ดูนิ่ง/แพง
+},
 
 });
+
+function shadow(level = 4) {
+  return Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOpacity: 0.06 + level * 0.004,
+      shadowRadius: 4 + level,
+      shadowOffset: { width: 0, height: 2 + Math.round(level / 2) },
+    },
+    android: {
+      elevation: 1 + Math.round(level / 2),
+    },
+  });
+}

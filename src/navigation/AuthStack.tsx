@@ -32,7 +32,7 @@ function AuthEmailLoginScreen() {
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
   // ใช้ root nav เพื่อไป MainTabs ที่ Root
   const rootNav = useNavigation<any>(); // หรือ NavigationProp<RootStackParamList>
-
+console.log('AuthEmailLoginScreen render');
   return (
     <AuthEmailLogin
       onLogin={({ email }) => {

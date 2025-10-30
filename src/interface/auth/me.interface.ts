@@ -1,3 +1,5 @@
+import { JSX } from "react";
+
 export type MeResponse = {
   id: string;
   email: string;
@@ -53,30 +55,75 @@ export interface MenuItem {
   parentId?: string | null;
 }
 
+
 export interface UserProfileResponse {
-  id: string;
-  email: string;
-  name: string;
-  orgId: string | null;
-  email_verified: boolean;
-  locale: string;        // เช่น "th-TH"
-  timezone: string;      // เช่น "Asia/Bangkok"
-  phone: string | null;  // เบอร์โทร
-  device_info: string | null;
-  position: string;
-  avatarUri: string | null;
-  department: string;
-  // org_name: string | null;
-  notificationCount: number; // จำนวนแจ้งเตือน
-  org?: Organization | null; // ชื่อบริษัท (ถ้ามี)  
-  role: string;          // เช่น "SUPERADMIN"
-  permissions: PermissionCode[];
-  menus: MenuItem[];
+  user: User
+  preferences: Preferences
+  security: Security
+  orgs: any[]
+  roles: string[]
+  active_org: ActiveOrg
+  permissions: any[]
+  menus: Menu[]
+  unread_counts: UnreadCounts
+  feature_flags: FeatureFlags
+  api: Api
+  etag: string
+  updated_at: string
+
 }
 
-// Define Organization type (customize fields as needed)
-export type Organization = {
-  orgId: string;
-  orgName: string;
-  subdomain?: string | null;
-};
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatar_url: string
+  phone: any
+  email_verified: boolean
+  roles: string[]
+}
+
+export interface Preferences {
+  locale: string
+  timezone: string
+  theme: string
+}
+
+export interface Security {
+  mfa_enabled: boolean
+  last_login_at: string
+}
+
+export interface ActiveOrg {
+  id: string
+  name: string
+  plan: string
+  features: Features
+}
+
+export interface Features {}
+
+export interface Menu {
+  key: string
+  map_key: string
+  component: JSX.Element | (() => JSX.Element)
+  title: string
+  icon: string
+  route: string
+  parent_key: string
+}
+
+export interface UnreadCounts {
+  approvals: number
+  notifications: number
+}
+
+export interface FeatureFlags {
+  new_nav: boolean
+  beta_profile: boolean
+}
+
+export interface Api {
+  min_app_version: string
+  force_update: boolean
+}

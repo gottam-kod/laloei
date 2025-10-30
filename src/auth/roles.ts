@@ -1,8 +1,11 @@
 // src/auth/roles.ts
 
+import { HomeStackParamList } from "../navigation/RootStackParamList";
+
 export type Role =
     | 'SUPERADMIN'
-    | 'HRADMIN'
+    | 'OWNER'
+    | 'HR'
     | 'MANAGER'
     | 'ORGADMIN'
     | 'HRSTAFF'
@@ -17,47 +20,89 @@ export type Role =
     | 'INTERN'
     ;
 
-export const ROLES: { code: Role; name: string; label: string }[] = [
-    { code: 'SUPERADMIN', name: 'ผู้ดูแลระบบสูงสุด', label: 'Super Admin' },
-    { code: 'HRADMIN', name: 'ผู้ดูแลระบบทรัพยากรบุคคล', label: 'HR Admin' },
-    { code: 'MANAGER', name: 'ผู้จัดการ', label: 'Manager' },
-    { code: 'ORGADMIN', name: 'ผู้ดูแลระบบองค์กร', label: 'Org Admin' },
-    { code: 'HRSTAFF', name: 'เจ้าหน้าที่ทรัพยากรบุคคล', label: 'HR Staff' },
-    { code: 'ATTENDANCEADMIN', name: 'ผู้ดูแลระบบการเข้าออกงาน', label: 'Attendance Admin' },
-    { code: 'TEAMLEAD', name: 'หัวหน้าทีม', label: 'Team Lead' },
-    { code: 'EMP', name: 'พนักงาน', label: 'Employee' },
-    { code: 'PAYROLL', name: 'ฝ่ายเงินเดือน', label: 'Payroll' },
-    { code: 'FINANCE', name: 'ฝ่ายการเงิน', label: 'Finance' },
-    { code: 'AUDITOR', name: 'ผู้ตรวจสอบ', label: 'Auditor' },
-    { code: 'ITSUPPORT', name: 'ฝ่ายสนับสนุนไอที', label: 'IT Support' },
-    { code: 'CONTRACTOR', name: 'ผู้รับเหมา', label: 'Contractor' },
-    { code: 'INTERN', name: 'นักศึกษา/ฝึกงาน', label: 'Intern' },
+export type QuickKey =
+  | 'MENU_LEAVE'
+  | 'MENU_HISTORY'
+  | 'MENU_APPROVE'
+  | 'MENU_CALENDAR'
+  | 'MENU_POLICY'
+  | 'MENU_PROFILE'
+  | 'MENU_REPORT'
+  | 'MENU_SUMMARY'
+  | 'MENU_SETTING'
+  | 'MENU_NOTIFICATION';
+
+
+export const ROLE_PRIORITY: Role[] = [
+  'SUPERADMIN',
+  'OWNER',
+  'ORGADMIN',
+  'HR',
+  'MANAGER', 'TEAMLEAD',
+  'ATTENDANCEADMIN', 'PAYROLL', 'FINANCE',
+  'HRSTAFF', 'ITSUPPORT',
+  'EMP',
+  'CONTRACTOR',
+  'INTERN',
+  // หมายเหตุ: 'AUDITOR' เป็นบทบาทตรวจสอบ (read-only ส่วนใหญ่)
+  // ถ้าต้องการให้อยู่สูง/ต่ำกว่านี้ ให้แทรกตำแหน่งที่ต้องการ
 ];
+
+export type UserProfile = {
+  id: string;
+  name: string;
+  // เดิมเคยมี role: string | string[]
+  roles: Role[];          // ✅ เก็บเป็นอาเรย์เสมอ
+  activeRole?: Role;      // ✅ บทบาทที่กำลังใช้งาน (optional)
+  menus?: { key: string }[];
+};
 export const TABS = {
     HomeTab: 'home',
     HistoryTab: 'leave-history',
     TeamTab: 'team',
     PerksTab: 'perks',
     ProfileTab: 'profile',
+    ReportTab: 'report',
 } as const;
 export type TabKey = keyof typeof TABS;
 
-// กำหนดสิทธิ์เห็นแท็บต่อ role
-export const TAB_POLICY: Record<Role, TabKey[]> = {
-    SUPERADMIN: ['HomeTab', 'HistoryTab', 'TeamTab', 'PerksTab', 'ProfileTab'],
-    HRADMIN: ['HomeTab', 'HistoryTab', 'TeamTab', 'ProfileTab'],
-    MANAGER: ['HomeTab', 'HistoryTab', 'TeamTab', 'ProfileTab'],
-    EMP: ['HomeTab', 'HistoryTab', 'ProfileTab'],
-    ORGADMIN: ['HomeTab', 'HistoryTab', 'TeamTab', 'PerksTab', 'ProfileTab'],
-    HRSTAFF: [],
-    ATTENDANCEADMIN: [],
-    TEAMLEAD: [],
-    PAYROLL: [],
-    FINANCE: [],
-    AUDITOR: [],
-    ITSUPPORT: [],
-    CONTRACTOR: [],
-    INTERN: []
+export const QUICK_TO_ROUTE: Record<QuickKey, keyof HomeStackParamList> = {
+  MENU_LEAVE:    'LeaveRequest',
+  MENU_HISTORY:  'LeaveHistory',
+  MENU_APPROVE:  'ApproveCenter',
+  MENU_CALENDAR: 'CalendarScreen',
+  MENU_POLICY:   'PolicyScreen',
+  MENU_PROFILE:  'ProfileScreen',
+  MENU_REPORT:   'ReportScreen',
+  MENU_SUMMARY:  'SummaryScreen',
+  MENU_SETTING:  'SettingsScreen',
+  MENU_NOTIFICATION: 'Notifications',
+};
+
+
+
+export const ROLE_QUICK_MAP: Record<Role, string[]> = {
+  // พนักงาน: 3 ปุ่มหลักตามลำดับที่แนะนำ + โปรไฟล์/แจ้งเตือน
+  EMP: ['MENU_LEAVE', 'MENU_HISTORY', 'MENU_CALENDAR', 'MENU_PROFILE', 'MENU_NOTIFICATION'],
+
+  // หัวหน้า/HR: เพิ่ม "อนุมัติ" ต่อท้าย (ถี่ แต่เฉพาะ role นี้)
+  MANAGER: ['MENU_LEAVE', 'MENU_HISTORY', 'MENU_CALENDAR', 'MENU_APPROVE', 'MENU_PROFILE', 'MENU_NOTIFICATION'],
+  HR: ['MENU_LEAVE', 'MENU_HISTORY', 'MENU_CALENDAR', 'MENU_APPROVE', 'MENU_PROFILE', 'MENU_NOTIFICATION'],
+
+  // กลุ่มผู้บริหาร/ดูแลระบบ: ให้ครบ ใช้ All Menu เป็นหลัก
+  OWNER: ['MENU_LEAVE', 'MENU_HISTORY', 'MENU_CALENDAR', 'MENU_APPROVE', 'MENU_PROFILE', 'MENU_NOTIFICATION'],
+  SUPERADMIN: ['MENU_LEAVE', 'MENU_HISTORY', 'MENU_CALENDAR', 'MENU_APPROVE', 'MENU_PROFILE', 'MENU_NOTIFICATION'],
+
+  ORGADMIN: [],
+  HRSTAFF: [],
+  ATTENDANCEADMIN: [],
+  TEAMLEAD: [],
+  PAYROLL: [],
+  FINANCE: [],
+  AUDITOR: [],
+  ITSUPPORT: [],
+  CONTRACTOR: [],
+  INTERN: [],
 };
 
 

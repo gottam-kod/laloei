@@ -1,12 +1,17 @@
 // screens/PerksScreen.tsx
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, Platform, StatusBar,
-  TouchableOpacity, TextInput, FlatList
+  FlatList,
+  Platform, StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { COLOR, SHADOW } from '../theme/theme';
-
+import { COLOR, THEME } from '../theme/token';
+const SHADOW = THEME.light.shadowCard;
 type Props = {
   onBack?: () => void;
   onOpenPerk?: (id: string) => void;
@@ -80,7 +85,7 @@ const PerksScreen: React.FC<Props> = ({ onBack, onOpenPerk, onRedeem }) => {
         </View>
 
         {/* สรุปแต้ม/สิทธิ์ */}
-        <View style={[styles.summaryCard, SHADOW as any]}>
+        <View style={[styles.summaryCard, SHADOW]}>
           <View style={{ flex:1 }}>
             <Text style={styles.sumLabel}>แต้มสะสม</Text>
             <Text style={styles.sumValue}>{pointBalance} <Text style={styles.sumUnit}>แต้ม</Text></Text>
@@ -150,6 +155,7 @@ const PerksScreen: React.FC<Props> = ({ onBack, onOpenPerk, onRedeem }) => {
 
 export default PerksScreen;
 
+
 /* ---------------- Sub Components ---------------- */
 
 const PerkCard: React.FC<{
@@ -158,7 +164,7 @@ const PerkCard: React.FC<{
   onRedeem?: () => void;
 }> = ({ p, onOpen, onRedeem }) => {
   return (
-    <TouchableOpacity style={[styles.card, SHADOW()]} activeOpacity={0.9} onPress={onOpen}>
+    <TouchableOpacity style={[styles.card, SHADOW]} activeOpacity={0.9} onPress={onOpen}>
       <View style={styles.cardHeadRow}>
         <View style={styles.badgeIcon}>
           <Text style={{ fontSize:18 }}>🎁</Text>
