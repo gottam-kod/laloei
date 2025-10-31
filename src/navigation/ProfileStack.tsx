@@ -4,7 +4,6 @@ import React from 'react';
 import ChangePasswordScreen from '../screens/auth/ChangePasswordScreen';
 import CreateOrganizationScreen from '../screens/org/CreateOrganizationScreen';
 import MyOrganizationsScreen from '../screens/org/MyOrganizationsScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import { ProfileStackParamList } from './RootStackParamList';
 import InviteScreen from '../screens/org/InviteScreen';
 import UpgradePlanScreen from '../screens/UpgradePlanScreen';
@@ -12,6 +11,7 @@ import BillingScreen from '../screens/BillingScreen';
 import TeamStructureScreen from '../screens/TeamStructureScreen';
 import LeaveTypesScreen from '../screens/LeaveTypesScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -22,7 +22,8 @@ export default function ProfileStack() {
     <Stack.Navigator>
       <Stack.Screen
         name="Profile"
-        options={{ title: 'โปรไฟล์' }}
+        options={{ headerShown: false, title: 'โปรไฟล์' }}
+        
         children={(props) => (
           <ProfileScreen
             {...props}

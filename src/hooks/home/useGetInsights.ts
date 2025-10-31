@@ -1,5 +1,5 @@
 // useGetInsights.ts
-import { instanceAxios } from '@/src/connections/axios';
+import { instanceAxios } from '@/src/connections/http';
 import { ApiError } from '@/src/interface/auth/login.interface';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

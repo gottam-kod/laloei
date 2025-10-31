@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { instanceAxios } from '../axios';
-
+import { instanceAxios } from '@/src/connections/http';
 import { ApiError } from '../../interface/auth/login.interface';
 import { Role } from '@/src/auth/roles';
 

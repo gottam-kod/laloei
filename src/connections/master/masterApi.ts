@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
-import { instanceAxios } from '../axios';
+import { instanceAxios } from '@/src/connections/http';
 import { LeaveType } from '@/src/interface/leave-type';
 
 // Get /api/v1/leave-types

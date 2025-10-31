@@ -1,4 +1,4 @@
-import { instanceAxios } from '@/src/connections/axios';
+import { instanceAxios } from '@/src/connections/http';
 import { LeaveSummary } from "@/src/interface/home/leave-summary";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useQuery } from "@tanstack/react-query";

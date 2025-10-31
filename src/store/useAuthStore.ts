@@ -7,7 +7,6 @@ import { ActiveOrg, Menu } from '../interface/auth/me.interface';
 
 type AuthState = {
   token: string | null;
-  /** ใช้เช็คว่า rehydrate เสร็จหรือยัง (กันกระพริบ/เงื่อนไขก่อน mount) */
   profile: Profile | null;
   hydrated: boolean;
   lang: 'th' | 'en';
@@ -27,11 +26,11 @@ type Profile = {
   position?: string | null;
   avatarUri?: string | null;
   notificationCount?: number;
-  roles?: string[]; // เช่น ['owner', 'admin']
-  lang?: 'th' | 'en'; // ภาษา UI ที่เลือก (ถ้ามี)
-  menus?: Menu[]; // เมนูที่ผู้ใช้มีสิทธิ์เข้าถึง
-  permissions?: string[]; // สิทธิ์ที่ผู้ใช้มี
-  org?: ActiveOrg | null; // ชื่อบริษัท (ถ้ามี)
+  roles?: string[];
+  lang?: 'th' | 'en';
+  menus?: Menu[];
+  permissions?: string[];
+  org?: ActiveOrg | null;
 }
 
 
@@ -47,7 +46,6 @@ const secureStoreStorage: StateStorage = {
   },
 };
 
-/** เลือก storage ตามแพลตฟอร์ม: web = localStorage, native = SecureStore */
 const storage = Platform.OS === 'web'
   ? createJSONStorage(() => localStorage)
   : createJSONStorage(() => secureStoreStorage);
@@ -81,9 +79,7 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       storage,
       version: 1,
-      // Persist เฉพาะข้อมูลที่จำเป็น (ไม่เก็บฟังก์ชัน/สถานะชั่วคราว)
       partialize: (state) => ({ token: state.token }),
-      // เมื่อ rehydrate เสร็จ ให้ตั้ง hydrated = true
       onRehydrateStorage: () => (state, error) => {
         if (error) {
           console.warn('auth rehydrate error:', error);

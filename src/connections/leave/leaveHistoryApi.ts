@@ -1,5 +1,5 @@
 import { LeaveItem } from "@/src/interface/leaveHistory";
-import { instanceAxios } from "../axios";
+import { instanceAxios } from '@/src/connections/http';
 
 
 

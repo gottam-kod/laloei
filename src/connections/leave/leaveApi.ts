@@ -2,10 +2,9 @@ import { useAuthStore } from '@/src/store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { ApiError, LoginRequest, LoginResponse } from '../../interface/auth/login.interface';
-import { UserProfileResponse } from '../../interface/auth/me.interface';
-import { navigationRef } from '../../navigation/navigationRef';
-import { instanceAxios } from '../axios';
+
 import { CreateLeaveRequestPayload, LeaveRequest } from '@/src/interface/leave-request';
+import { instanceAxios } from '@/src/connections/http';
 
 // LeaveRequest 
 // POST /leave-requests

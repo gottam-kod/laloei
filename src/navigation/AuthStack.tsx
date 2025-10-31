@@ -1,27 +1,23 @@
 // src/navigation/AuthStack.tsx
-import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
+import React from 'react';
 
-import AuthLandingScreen from '../screens/auth/LoginScreen';
-import AuthPhoneLogin from '../screens/auth/AuthPhoneLogin';
 import AuthEmailLogin from '../screens/auth/AuthEmailLogin';
+import AuthPhoneLogin from '../screens/auth/AuthPhoneLogin';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
-import { RootStackParamList } from './RootStackParamList';
+import AuthLandingScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
-import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen';
 
-/** ---------- Types ---------- */
 export type AuthStackParamList = {
   AuthLanding: undefined;
   AuthPhoneLogin: undefined;
-  AuthEmailLogin: { prefillEmail?: string } | undefined;
+  AuthEmailLogin: undefined;
   ForgotPassword: { email?: string } | undefined;
   Register: undefined;
-  VerifyEmail: { email: string };
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -30,14 +26,11 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 function AuthEmailLoginScreen() {
   const authNav =
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
-  // ใช้ root nav เพื่อไป MainTabs ที่ Root
-  const rootNav = useNavigation<any>(); // หรือ NavigationProp<RootStackParamList>
-console.log('AuthEmailLoginScreen render');
+  const rootNav = useNavigation<any>();
+
   return (
     <AuthEmailLogin
       onLogin={({ email }) => {
-        // ไปหน้า main app ที่ Root (ชื่อ route ตามที่คุณตั้งไว้)
-        // ตัวอย่าง: Root มี "MainTabs"
         rootNav.navigate?.('MainTabs');
       }}
       onForgot={(email?: string) => {
