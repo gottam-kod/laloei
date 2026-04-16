@@ -1,39 +1,55 @@
-import { useQuickActions } from '@/src/hooks/quicks/useQuickActions';
-import { useAuthStore, useUserRole } from '@/src/store/useAuthStore';
+// screens/LaloeiHome.tsx
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-// import FabAll from '../../components/home/FabAll';
-import ArticlesList from '../../components/home/ArticlesList';
-import GreetingInsight from '../../components/home/GreetingInsight';
-import HeaderBar from '../../components/home/HeaderBar';
-import PromosCarousel from '../../components/home/PromosCarousel';
-import QuickAllModal from '../../components/home/QuickAllModal';
-import QuickGrid, { QuickItem } from '../../components/home/QuickGrid';
-import ScoreBar from '../../components/home/ScoreBar';
-import UpcomingCard from '../../components/home/UpcomingCard';
-import { COLOR, SP } from '../../theme/token';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGetInsights } from '@/src/hooks/home/useGetInsights';
-import { resetToLogin } from '@/src/navigation/navigationRef';
-import { QuickKey, Role, ROLE_QUICK_MAP } from '@/src/auth/roles';
-import { useGetLeaveSummary } from '@/src/hooks/home/useGetLeaveSummary';
-import { BackgroundFX } from '@/src/components/Background';
-import { useGetLeaveHistory } from '@/src/hooks/leave/useLeaveHistory';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// table menu 
-// == Quick สำหรับหน้า Home (MVP ตามที่แนะนำ) == 
-const QUICK: QuickItem[] = [
-  { key: 'MENU_LEAVE', label: 'ขอลา', icon: 'pencil', color: '#0EA5E9' },   // ฟ้า
-  { key: 'MENU_HISTORY', label: 'ประวัติลา', icon: 'calendar-outline', color: '#6366F1' },   // ม่วง
-  { key: 'MENU_CALENDAR', label: 'ปฏิทิน', icon: 'calendar-outline', color: '#F59E0B' },   // ส้ม
-  { key: 'MENU_APPROVE', label: 'อนุมัติ', icon: 'checkmark-done-circle', color: '#10B981' },   // เขียว (เฉพาะหัวหน้า/HR)
+import ArticlesList from '@/src/components/home/ArticlesList';
+import GreetingInsight from '@/src/components/home/GreetingInsight';
+import HeaderBar from '@/src/components/home/HeaderBar';
+import PromosCarousel from '@/src/components/home/PromosCarousel';
+import QuickAllModal from '@/src/components/home/QuickAllModal';
+import QuickGrid, { QuickItem } from '@/src/components/home/QuickGrid';
+import ScoreBar from '@/src/components/home/ScoreBar';
+
+import { useGetInsights } from '@/src/hooks/home/useGetInsights';
+import { useGetLeaveSummary } from '@/src/hooks/home/useGetLeaveSummary';
+import { useGetLeaveHistory } from '@/src/hooks/leave/useLeaveHistory';
+import { useQuickActions } from '@/src/hooks/quicks/useQuickActions';
+
+import { QuickKey, Role, ROLE_QUICK_MAP } from '@/src/auth/roles';
+import { resetToLogin } from '@/src/navigation/navigationRef';
+import { useAuthStore, useUserRole } from '@/src/store/useAuthStore';
+
+import { COLOR, SP } from '@/src/theme/token';
+import LeaveSmartCard, { SmartLeave } from './components/LeaveSmartCard';
+
+/* =========================
+ * Config / Constants
+ * ========================= */
+const UI = {
+  header: {
+    maxH: 260,
+    minH: 180,
+    collapseAt: 90,
+    translateMax: -90,
+  },
+  anim: {
+    loopMs: 5200,
+    modalInMs: 160,
+    modalOutMs: 140,
+  },
+} as const;
+
+const QUICK_BASE: QuickItem[] = [
+  { key: 'MENU_LEAVE', label: 'ขอลา', icon: 'pencil', color: '#0EA5E9' },
+  { key: 'MENU_HISTORY', label: 'ประวัติลา', icon: 'calendar-outline', color: '#6366F1' },
+  { key: 'MENU_CALENDAR', label: 'ปฏิทิน', icon: 'calendar-outline', color: '#F59E0B' },
+  { key: 'MENU_APPROVE', label: 'อนุมัติ', icon: 'checkmark-done-circle', color: '#10B981' },
   { key: 'MENU_PROFILE', label: 'โปรไฟล์', icon: 'person-circle-outline', color: '#8B5CF6' },
   { key: 'MENU_NOTIFICATION', label: 'แจ้งเตือน', icon: 'notifications-outline', color: '#64748B' },
-  // อื่นๆ (policy/report/summary/setting) ไปอยู่ใน All Menu (Modal)
 ];
-
 
 const PROMOS = [
   { id: 'p1', title: 'ตั้งสิทธิ์ลาองค์กรยืดหยุ่น', cover: 'https://picsum.photos/seed/l9a/420/240' },
@@ -45,7 +61,10 @@ const ARTICLES = [
   { id: 'a2', title: 'เริ่มต้น HR Analytics ยังไง', cover: 'https://picsum.photos/seed/l9d/640/360' },
 ];
 
-function useGreeting() {
+/* =========================
+ * Utils
+ * ========================= */
+function dayPart(): 'AM' | 'PM' | 'EVENING' | 'NIGHT' {
   const h = new Date().getHours();
   if (h < 12) return 'AM';
   if (h < 18) return 'PM';
@@ -53,118 +72,169 @@ function useGreeting() {
   return 'NIGHT';
 }
 
+/* =========================
+ * Screen
+ * ========================= */
 export default function LaloeiHome() {
-  const { t: translate, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { t, i18n } = useTranslation();
 
-  const profile = useAuthStore(s => s.profile);
+  const profile = useAuthStore((s) => s.profile);
   const role = useUserRole();
 
+  // ถ้า token/profile หลุด ส่งกลับหน้า login
   if (!profile) {
     resetToLogin();
     return null;
   }
 
-  const [stats, setStats] = useState({
-    annualRemaining: translate('dashboard.stats.annualRemaining'),
-    sickRemaining: translate('dashboard.stats.sickRemaining'),
-    daysUsed: translate('dashboard.stats.daysUsed'),
-  });
+  /* ---------- i18n labels (reactive) ---------- */
+  const statsLabels = useMemo(() => ({
+    annualRemaining: t('dashboard.stats.annualRemaining'), // เหลือ
+    sickRemaining: t('dashboard.stats.sickRemaining'),   // ลาป่วยคงเหลือ
+    daysUsed: t('dashboard.stats.daysUsed'),        // ใช้ไป
+    totalLabel: t('dashboard.stats.total'),           // รวม (เพิ่มคีย์นี้ใน i18n)
+  }), [t, i18n.language]);
 
-  const visibleQuick = useMemo(() => {
-    const keys = ROLE_QUICK_MAP[role as Role] ?? [];
-    return QUICK.filter(q => keys.includes(q.key));
-  }, [role]);
-
-  const greetTime = useMemo(() => {
-    const g = useGreeting();
-    if (g === 'AM') return translate('dashboard.greetingMorning');
-    if (g === 'PM') return translate('dashboard.greetingAfternoon');
-    if (g === 'EVENING') return translate('dashboard.greetingEvening');
-    return translate('dashboard.greetingNight');
-  }, [i18n.language]);
-
-  useEffect(() => {
-    const id = setTimeout(() => {
-      setStats({
-        annualRemaining: translate('dashboard.stats.annualRemaining'),
-        sickRemaining: translate('dashboard.stats.sickRemaining'),
-        daysUsed: translate('dashboard.stats.daysUsed'),
-      });
-    }, 600);
-    return () => clearTimeout(id);
-  }, [i18n.language, translate]);
-
-  const { data: leave } = useGetLeaveHistory(profile.id, { enabled: !!profile.id });
+  /* ---------- API data ---------- */
+  const { data: leaveHistory = [] } = useGetLeaveHistory(profile.id, { enabled: !!profile.id });
   const { data: leaveSummaryApi } = useGetLeaveSummary({ enabled: true });
-  const { data: INSIGHTS = [] } = useGetInsights({ enabled: true });
+  const { data: insights = [] } = useGetInsights({ enabled: true });
+
   const leaveSummary = leaveSummaryApi ?? { left: 0, used: 0, total: 0 };
 
-  const leaveHistoryTop1 = leave?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  // last created leave (safe sort)
+  const leaveHistoryTop1 = useMemo(() => {
+    if (!Array.isArray(leaveHistory) || leaveHistory.length === 0) return undefined;
+    const sorted = [...leaveHistory].sort((a, b) => {
+      const at = new Date(a.createdAt).getTime() || 0;
+      const bt = new Date(b.createdAt).getTime() || 0;
+      return bt - at;
+    });
+    return sorted[0];
+  }, [leaveHistory]);
 
-  // BG animation
+  /* ---------- Quick (filtered by Role) ---------- */
+  const visibleQuick = useMemo<QuickItem[]>(() => {
+    const keys = (ROLE_QUICK_MAP[role as Role] ?? []) as QuickKey[];
+    return QUICK_BASE.filter(q => keys.includes(q.key as QuickKey));
+  }, [role]);
+
+  /* ---------- Greeting / Insight ---------- */
+  const greetText = useMemo(() => {
+    const g = dayPart();
+    if (g === 'AM') return t('dashboard.greetingMorning');
+    if (g === 'PM') return t('dashboard.greetingAfternoon');
+    if (g === 'EVENING') return t('dashboard.greetingEvening');
+    return t('dashboard.greetingNight');
+  }, [t, i18n.language]);
+
+  const randomInsight = useMemo(() => {
+    if (!insights || insights.length === 0) return '';
+    const idx = Math.floor(Math.random() * insights.length);
+    return insights[idx];
+  }, [insights]);
+
+  /* ---------- Actions (รวมทุกปุ่ม) ---------- */
+  const { onQuickPress: quickActionFromHook } = useQuickActions({ openAllMenu: () => openModal() });
+
+  const handleQuick = useCallback((k: QuickKey) => {
+    // จุดเดียวสำหรับ map เพิ่มเติม ก่อนส่งให้ hook
+    // ถ้าต้องการ intercept route/param ใส่ได้ที่นี่
+    quickActionFromHook(k);
+  }, [quickActionFromHook]);
+
+  const goLeaveDetail = useCallback((id: string) => {
+    handleQuick('MENU_HISTORY');
+  }, [handleQuick]);
+
+  /* ---------- Header BG animation (loop) ---------- */
   const animT = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    const looper = Animated.loop(
+    let isMounted = true;
+    const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(animT, { toValue: 1, duration: 5200, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(animT, { toValue: 0, duration: 5200, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(animT, { toValue: 1, duration: UI.anim.loopMs, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(animT, { toValue: 0, duration: UI.anim.loopMs, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ])
     );
-    looper.start();
-    return () => looper.stop();
+    loop.start();
+    return () => {
+      if (isMounted) loop.stop();
+      isMounted = false;
+    };
   }, [animT]);
 
-  const blob1 = {
-    transform: [
-      { translateX: animT.interpolate({ inputRange: [0, 1], outputRange: [0, 18] }) },
-      { translateY: animT.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) },
-    ]
-  };
-  const blob2 = {
-    transform: [
-      { translateX: animT.interpolate({ inputRange: [0, 1], outputRange: [0, -14] }) },
-      { translateY: animT.interpolate({ inputRange: [0, 1], outputRange: [0, 14] }) },
-    ]
-  };
+  const blob1Style = useMemo(() => ([
+    styles.blob,
+    { top: -60, left: -70, backgroundColor: '#D7F1FF' },
+    {
+      transform: [
+        { translateX: animT.interpolate({ inputRange: [0, 1], outputRange: [0, 18] }) },
+        { translateY: animT.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) },
+      ],
+    },
+  ]), [animT]);
 
-  // scroll-driven
+  const blob2Style = useMemo(() => ([
+    styles.blob,
+    { top: 10, right: -80, backgroundColor: '#D9FFF1' },
+    {
+      transform: [
+        { translateX: animT.interpolate({ inputRange: [0, 1], outputRange: [0, -14] }) },
+        { translateY: animT.interpolate({ inputRange: [0, 1], outputRange: [0, 14] }) },
+      ],
+    },
+  ]), [animT]);
+
+  /* ---------- Scroll-driven header ---------- */
   const scrollY = useRef(new Animated.Value(0)).current;
-  const COLLAPSE = 90;
-  const headerHeight = scrollY.interpolate({ inputRange: [0, COLLAPSE], outputRange: [260, 180], extrapolate: 'clamp' });
-  const headerTranslateY = scrollY.interpolate({ inputRange: [0, 300], outputRange: [0, -90], extrapolate: 'clamp' });
-  const titleOpacity = scrollY.interpolate({ inputRange: [0, COLLAPSE * 0.6, COLLAPSE], outputRange: [1, 0.4, 0], extrapolate: 'clamp' });
-  const greetOpacity = scrollY.interpolate({ inputRange: [0, COLLAPSE * 0.6, COLLAPSE], outputRange: [1, 0.3, 0], extrapolate: 'clamp' });
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, UI.header.collapseAt],
+    outputRange: [UI.header.maxH, UI.header.minH],
+    extrapolate: 'clamp',
+  });
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 300],
+    outputRange: [0, UI.header.translateMax],
+    extrapolate: 'clamp',
+  });
+  const titleOpacity = scrollY.interpolate({
+    inputRange: [0, UI.header.collapseAt * 0.6, UI.header.collapseAt],
+    outputRange: [1, 0.4, 0],
+    extrapolate: 'clamp',
+  });
+  const greetOpacity = scrollY.interpolate({
+    inputRange: [0, UI.header.collapseAt * 0.6, UI.header.collapseAt],
+    outputRange: [1, 0.3, 0],
+    extrapolate: 'clamp',
+  });
 
-  // modal
+  /* ---------- All Menu (modal) ---------- */
   const [modalOpen, setModalOpen] = useState(false);
   const modalScale = useRef(new Animated.Value(0.9)).current;
   const modalOpacity = useRef(new Animated.Value(0)).current;
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     setModalOpen(true);
     Animated.parallel([
-      Animated.timing(modalOpacity, { toValue: 1, duration: 160, useNativeDriver: true }),
+      Animated.timing(modalOpacity, { toValue: 1, duration: UI.anim.modalInMs, useNativeDriver: true }),
       Animated.spring(modalScale, { toValue: 1, useNativeDriver: true, friction: 8 }),
     ]).start();
-  };
-  const closeModal = () => {
+  }, [modalOpacity, modalScale]);
+
+  const closeModal = useCallback(() => {
     Animated.parallel([
-      Animated.timing(modalOpacity, { toValue: 0, duration: 140, useNativeDriver: true }),
-      Animated.timing(modalScale, { toValue: 0.9, duration: 140, useNativeDriver: true }),
+      Animated.timing(modalOpacity, { toValue: 0, duration: UI.anim.modalOutMs, useNativeDriver: true }),
+      Animated.timing(modalScale, { toValue: 0.9, duration: UI.anim.modalOutMs, useNativeDriver: true }),
     ]).start(({ finished }) => finished && setModalOpen(false));
-  };
+  }, [modalOpacity, modalScale]);
 
-  const insight = useMemo(() => {
-    if (!INSIGHTS || INSIGHTS.length === 0) return '';
-    return INSIGHTS[Math.floor(Math.random() * INSIGHTS.length)];
-  }, [INSIGHTS]);
-
-  const { onQuickPress } = useQuickActions({ openAllMenu: openModal });
-
+  /* ---------- Render ---------- */
   return (
     <View style={{ flex: 1 }}>
-      <BackgroundFX />
+      {/* <BackgroundFX /> */}
+
       {/* Header BG + blobs */}
       <Animated.View
         style={[
@@ -175,6 +245,8 @@ export default function LaloeiHome() {
             transform: [{ translateY: headerTranslateY }],
           },
         ]}
+        accessibilityRole="header"
+        accessibilityLabel="Gradient header"
       >
         <LinearGradient
           colors={[COLOR.gradA, COLOR.gradB]}
@@ -182,11 +254,9 @@ export default function LaloeiHome() {
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
-
-        <Animated.View style={[styles.blob, { top: -60, left: -70, backgroundColor: '#D7F1FF' }, blob1]} />
-        <Animated.View style={[styles.blob, { top: 10, right: -80, backgroundColor: '#D9FFF1' }, blob2]} />
+        <Animated.View style={blob1Style as any} />
+        <Animated.View style={blob2Style as any} />
       </Animated.View>
-
 
       <SafeAreaView style={{ flex: 1 }}>
         <Animated.ScrollView
@@ -196,23 +266,27 @@ export default function LaloeiHome() {
             paddingBottom: Math.max(SP.lg, insets.bottom + 8),
             rowGap: SP.lg,
           }}
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: false }
+          )}
           scrollEventThrottle={16}
+          accessibilityLabel="Home content"
         >
           {/* Header + Greeting */}
           <HeaderBar
             titleOpacity={titleOpacity}
-            organizationName={profile?.org?.name ?? 'องค์กรของฉัน'}
-            subtitle={translate('subtitle')}
+            organizationName={profile?.org?.name ?? t('dashboard.defaultOrgName', { defaultValue: 'องค์กรของฉัน' })}
+            subtitle={t('subtitle')}
             avatar={profile?.avatarUri ?? ''}
-            onPressAvatar={() => onQuickPress('MENU_PROFILE')}
-            onPressNotification={() => onQuickPress('MENU_NOTIFICATION')}
+            onPressAvatar={() => handleQuick('MENU_PROFILE')}
+            onPressNotification={() => handleQuick('MENU_NOTIFICATION')}
           />
 
           <GreetingInsight
-            greetTime={greetTime}
-            name={profile?.name ?? 'ผู้ใช้'}
-            insight={insight}
+            greetTime={greetText}
+            name={profile?.name ?? t('dashboard.defaultUser', { defaultValue: 'ผู้ใช้' })}
+            insight={randomInsight}
             opacity={greetOpacity}
           />
 
@@ -221,50 +295,70 @@ export default function LaloeiHome() {
             left={leaveSummary.left}
             used={leaveSummary.used}
             total={leaveSummary.total}
-            stats={stats}
+            stats={{
+              annualRemaining: statsLabels.annualRemaining,
+              sickRemaining: statsLabels.sickRemaining,
+              daysUsed: statsLabels.daysUsed,
+              totalLabel: statsLabels.totalLabel,
+            }}
+            loading={false}
           />
 
-          {/* Quick — เรียงตามที่แนะนำ */}
+          {/* Quick (เรียงตาม role) */}
           <QuickGrid
-            title={translate('common.quickActions')}
+            title={t('common.quickActions')}
             items={visibleQuick}
-            onPressItem={(k) => onQuickPress(k as QuickKey)}
+            onPressItem={(k) => handleQuick(k as QuickKey)}
           />
 
           {/* Upcoming */}
           {(() => {
-            const s = leaveHistoryTop1?.status;
-            const allowed = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const;
-            const upcomingStatus = typeof s === 'string' && allowed.includes(s as any)
-              ? s as 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
-              : undefined;
+              console.log('leaveHistoryTop1', leaveHistoryTop1);
+
             return (
-              <UpcomingCard
-                status={upcomingStatus}
-                date={leaveHistoryTop1?.createdAt ?? '01 Jun 2024 - 01 Jun 2024'}
-                // time={'09:00'}
-                detail={leaveHistoryTop1?.note ?? 'ลาป่วย'}
-                approver={'รออนุมัติโดย หัวหน้างาน'} time={''}              />
+              // <UpcomingCard
+              //   status={upcomingStatus}
+              //   date={leaveHistoryTop1?.createdAt ?? '2024-06-01'}
+              //   detail={leaveHistoryTop1?.note ?? t('leave.defaultNote', { defaultValue: 'ลาป่วย' })}
+              //   approver={t('leave.waitingApprover', { defaultValue: 'รออนุมัติโดย หัวหน้างาน' })}
+              //   time={''}
+              // />
+              <LeaveSmartCard
+                role={role as any}
+                latest={leaveHistoryTop1 as SmartLeave | undefined}
+                approvalsCount={2}
+                onCreate={() => handleQuick('MENU_LEAVE')}
+                onOpenDetail={(id) => goLeaveDetail(id)}
+                onOpenApprovals={() => handleQuick('MENU_APPROVE')}
+                onOpenCalendar={() => handleQuick('MENU_CALENDAR')}
+                onResubmit={() => handleQuick('MENU_LEAVE')}
+              />
             );
           })()}
 
           {/* Promos + Articles */}
           <PromosCarousel items={PROMOS} />
           <ArticlesList items={ARTICLES} onPressAll={() => { }} />
+
+          {/* Open All */}
+          <Pressable
+            onPress={openModal}
+            android_ripple={{ color: '#00000011', borderless: true }}
+            style={{ height: 1, width: 1 }} // ไม่กินพื้นที่ UI แต่รองรับการเรียก openAll จาก hook ได้
+            accessibilityLabel="Open all menu"
+          />
         </Animated.ScrollView>
       </SafeAreaView>
 
       {/* All Menu (ปุ่ม 9 จุด) */}
-      {/* <FabAll onPress={openModal} /> */}
-
       <QuickAllModal
         visible={modalOpen}
-        items={QUICK}
+        items={QUICK_BASE}
         onClose={closeModal}
         opacity={modalOpacity}
         scale={modalScale}
         onPressItem={(k) => {
-          onQuickPress(k as QuickKey);
+          handleQuick(k as QuickKey);
           closeModal();
         }}
       />
@@ -273,14 +367,13 @@ export default function LaloeiHome() {
 }
 
 const styles = StyleSheet.create({
-  headerBG: { position: 'absolute', top: 0, left: 0, right: 0 },
   blob: { position: 'absolute', width: 320, height: 320, borderRadius: 400, opacity: 0.35 },
   headerWrap: {
     position: 'absolute',
     top: 0, left: 0, right: 0,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
-    overflow: 'hidden',       // สำคัญ: ให้คลิปมุม gradient/blobs
-    opacity: 0.9,             // ใส่ opacity ที่ wrapper
+    overflow: 'hidden',
+    opacity: 0.9,
   },
 });

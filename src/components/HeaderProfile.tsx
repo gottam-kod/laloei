@@ -1,7 +1,6 @@
 // components/HeaderHeroCard.minimal.tsx
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Platform, LayoutChangeEvent } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type Props = {

@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { StyleSheet, Text, View, ViewStyle } from "react-native";
-import LinearGradient from "react-native-linear-gradient";
-import { UI } from "../theme/token";
+import { theme } from "../theme/token";
 import Floating from "./Floating";
+import { LinearGradient } from "expo-linear-gradient";
 
 type Balance = { label: string; used: number; total: number; grad?: [string, string] };
 
@@ -21,7 +21,7 @@ const BalanceCard = memo(function BalanceCard({ variant, items }: { variant: 'mo
                         <View style={S.track}>
                             {variant === 'premium' && x.grad ? (
                                 <LinearGradient colors={x.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[S.fill, { width: `${pct}%` }]} />
-                            ) : <View style={[S.fill, { width: `${pct}%`, backgroundColor: UI.color.accent }]} />}
+                            ) : <View style={[S.fill, { width: `${pct}%`, backgroundColor: theme.color.accent }]} />}
                         </View>
                     </View>
                 );
@@ -33,12 +33,12 @@ const BalanceCard = memo(function BalanceCard({ variant, items }: { variant: 'mo
 
 const S = StyleSheet.create({
     /* Balance */
-    barRow: { marginTop: UI.space.md , gap: 6 } as ViewStyle,
+    barRow: { marginTop: theme.space.md , gap: 6 } as ViewStyle,
     barHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-    barLabel: { color: UI.color.text, fontWeight: '700' },
-    barVal: { color: UI.color.accentDark, fontWeight: '800' },
-    track: { height: 10, backgroundColor: UI.color.muted, borderRadius: UI.radius.pill, overflow: 'hidden' },
-    fill: { height: '100%', borderRadius: UI.radius.pill },
+    barLabel: { color: theme.color.text, fontWeight: '700' },
+    barVal: { color: theme.color.accentDark, fontWeight: '800' },
+    track: { height: 10, backgroundColor: theme.color.muted, borderRadius: theme.radius.pill, overflow: 'hidden' },
+    fill: { height: '100%', borderRadius: theme.radius.pill },
     
 
 });

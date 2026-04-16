@@ -10,7 +10,7 @@ import {
   View
 } from 'react-native';
 // ใช้ธีมของคุณเอง
-import { UI } from '@/src/theme/token';
+import { theme } from '@/src/theme/token';
 import { useNavigation } from '@react-navigation/native';
 // ไอคอน (เปลี่ยนตามโปรเจกต์)
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -147,7 +147,7 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: UI.color.bg }}>
+    <View style={{ flex: 1, backgroundColor: theme.color.bg }}>
       {/* Header */}
       <LinearGradient
         colors={['#E9F4FF', '#F4FFFD']}
@@ -156,11 +156,11 @@ export default function NotificationsScreen() {
       >
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => nav.goBack()} hitSlop={HIT}>
-            <Ionicons name="chevron-back" size={22} color={UI.color.sub} />
+            <Ionicons name="chevron-back" size={22} color={theme.color.sub} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>การแจ้งเตือน</Text>
           <TouchableOpacity onPress={markAllRead} hitSlop={HIT} style={styles.hRight}>
-            <Ionicons name="checkmark-done-outline" size={18} color={UI.color.accent} />
+            <Ionicons name="checkmark-done-outline" size={18} color={theme.color.accent} />
             <Text style={styles.markAll}>Mark all</Text>
           </TouchableOpacity>
         </View>
@@ -194,7 +194,7 @@ export default function NotificationsScreen() {
         onEndReached={onEndReached}
         ListEmptyComponent={
           <View style={[styles.card, { alignItems: 'center' }]}>
-            <Ionicons name="notifications-off-outline" size={24} color={UI.color.sub} />
+            <Ionicons name="notifications-off-outline" size={24} color={theme.color.sub} />
             <Text style={[styles.emptyTitle, { marginTop: 6 }]}>ยังไม่มีการแจ้งเตือน</Text>
             <Text style={styles.emptySub}>เมื่อมีเหตุการณ์ใหม่ ๆ จะแสดงที่นี่</Text>
           </View>
@@ -278,12 +278,12 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
   },
   headerRow: { flexDirection:'row', alignItems:'center', justifyContent:'space-between' },
-  headerTitle: { fontSize: 18, fontWeight: '900', color: UI.color.text },
+  headerTitle: { fontSize: 18, fontWeight: '900', color: theme.color.text },
   hRight: { flexDirection:'row', alignItems:'center', gap:6 },
-  markAll: { color: UI.color.accent, fontWeight: '800' },
+  markAll: { color: theme.color.accent, fontWeight: '800' },
 
   filterRow:{
-    marginTop: 12, backgroundColor:'#fff', borderRadius: 18, borderWidth:1, borderColor: UI.color.line,
+    marginTop: 12, backgroundColor:'#fff', borderRadius: 18, borderWidth:1, borderColor: theme.color.line,
     flexDirection:'row', paddingVertical:8, paddingHorizontal:8, gap:8,
     shadowColor:'#0f172a', shadowOpacity:0.06, shadowRadius:10, elevation:1
   },
@@ -292,13 +292,13 @@ const styles = StyleSheet.create({
     backgroundColor:'#F3F7FB', borderWidth:1, borderColor:'transparent'
   },
   filterChipActive:{ backgroundColor:'#E6FBF4', borderColor:'#C8F5EA' },
-  filterTxt:{ color: UI.color.sub, fontWeight:'700', fontSize:12.5 },
-  filterTxtActive:{ color: UI.color.accent, fontWeight:'800' },
+  filterTxt:{ color: theme.color.sub, fontWeight:'700', fontSize:12.5 },
+  filterTxtActive:{ color: theme.color.accent, fontWeight:'800' },
 
-  sectionTitle:{ marginTop: 18, marginBottom: 8, color: UI.color.sub, fontWeight:'900', fontSize:12 },
+  sectionTitle:{ marginTop: 18, marginBottom: 8, color: theme.color.sub, fontWeight:'900', fontSize:12 },
 
   notiCard:{
-    backgroundColor:'#fff', borderRadius:16, borderWidth:1, borderColor: UI.color.line,
+    backgroundColor:'#fff', borderRadius:16, borderWidth:1, borderColor: theme.color.line,
     padding:12, marginBottom:10,
     shadowColor:'#0f172a', shadowOpacity:0.06, shadowRadius:10, elevation:1,
     flexDirection:'row', alignItems:'center', justifyContent:'space-between'
@@ -309,16 +309,16 @@ const styles = StyleSheet.create({
     width:36, height:36, borderRadius:10, alignItems:'center', justifyContent:'center',
     borderWidth:1, marginTop:2
   },
-  nTitle:{ color: UI.color.text, fontWeight:'900' },
-  nBody:{ color: UI.color.text, opacity:0.8, marginTop:2 },
-  nTime:{ color: UI.color.sub, fontSize:12, marginTop:6 },
+  nTitle:{ color: theme.color.text, fontWeight:'900' },
+  nBody:{ color: theme.color.text, opacity:0.8, marginTop:2 },
+  nTime:{ color: theme.color.sub, fontSize:12, marginTop:6 },
 
   unreadDot:{ width:8, height:8, borderRadius:4, backgroundColor:'#10B981' },
 
   card:{
-    backgroundColor:'#fff', borderRadius:18, padding:16, borderWidth:1, borderColor: UI.color.line,
+    backgroundColor:'#fff', borderRadius:18, padding:16, borderWidth:1, borderColor: theme.color.line,
     shadowColor:'#0f172a', shadowOpacity:0.06, shadowRadius:10, elevation:1
   },
-  emptyTitle:{ color: UI.color.text, fontWeight:'900' },
-  emptySub:{ color: UI.color.sub, marginTop:2 },
+  emptyTitle:{ color: theme.color.text, fontWeight:'900' },
+  emptySub:{ color: theme.color.sub, marginTop:2 },
 });

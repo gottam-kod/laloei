@@ -1,7 +1,7 @@
-import Ionicons from "react-native-vector-icons/Ionicons";
 import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { UI } from "../theme/token";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { theme } from "../theme/token";
 
 const SectionTitle = memo(function SectionTitle({
   icon, title, rightLink, onRightPress
@@ -11,7 +11,7 @@ const SectionTitle = memo(function SectionTitle({
       <View style={S.secLeft}>
         {icon ? (
           <View style={S.secIcon}>
-            <Ionicons name={icon as any} size={14} color={UI.color.text}/>
+            <Ionicons name={icon as any} size={14} color={theme.color.text}/>
           </View>
         ) : null}
         <Text style={S.secTitle}>{title}</Text>
@@ -35,8 +35,8 @@ const S = StyleSheet.create({
   secLeft:{ flexDirection:'row', alignItems:'center', gap:8 },
   secIcon:{
     width:26, height:26, borderRadius:13, alignItems:'center', justifyContent:'center',
-    backgroundColor:'#F2F7FB', borderWidth:1, borderColor:UI.color.line
+    backgroundColor:'#F2F7FB', borderWidth:1, borderColor:theme.color.line
   },
-  secTitle:{ fontSize:UI.font.h2, fontWeight:'900', color:UI.color.text },
-  link:{ color:UI.color.accent, fontWeight:'900' },
+  secTitle:{ fontSize:theme.font.h2, fontWeight:'900', color:theme.color.text },
+  link:{ color:theme.color.accent, fontWeight:'900' },
 });

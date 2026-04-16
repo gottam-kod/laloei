@@ -2,16 +2,16 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import ChangePasswordScreen from '../screens/auth/ChangePasswordScreen';
-import CreateOrganizationScreen from '../screens/org/CreateOrganizationScreen';
-import MyOrganizationsScreen from '../screens/org/MyOrganizationsScreen';
-import { ProfileStackParamList } from './RootStackParamList';
-import InviteScreen from '../screens/org/InviteScreen';
-import UpgradePlanScreen from '../screens/UpgradePlanScreen';
 import BillingScreen from '../screens/BillingScreen';
-import TeamStructureScreen from '../screens/TeamStructureScreen';
 import LeaveTypesScreen from '../screens/LeaveTypesScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import CreateOrganizationScreen from '../screens/org/CreateOrganizationScreen';
+import InviteScreen from '../screens/org/InviteScreen';
+import MyOrganizationsScreen from '../screens/org/MyOrganizationsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import TeamStructureScreen from '../screens/TeamStructureScreen';
+import UpgradePlanScreen from '../screens/UpgradePlanScreen';
+import { ProfileStackParamList } from './RootStackParamList';
 
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();

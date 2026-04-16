@@ -1,9 +1,6 @@
-import { useTheme } from '@/src/theme/useTheme';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const { theme, mode, toggleMode, THEME } = useTheme();
-
+import { COLOR } from '@/src/theme/token';
 type Item = { key: string; label: string };
 export default function Segmented({
   items, activeKey, onChange,
@@ -30,15 +27,15 @@ const styles = StyleSheet.create({
   segment: {
     flexDirection: 'row',
     alignSelf: 'flex-start',
-    backgroundColor: theme.color.bgTopA,
+    backgroundColor: COLOR.bgTopA,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: theme.color.bgTopA,
+    borderColor: COLOR.bgTopA,
     padding: 6,
     gap: 6,
   },
   segBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 999 },
-  segBtnActive: { backgroundColor: '#fff', borderWidth: 1, borderColor: theme.color.line },
-  segText: { color: theme.color.sub, fontWeight: '700' },
-  segTextActive: { color: theme.color.text },
+  segBtnActive: { backgroundColor: '#fff', borderWidth: 1, borderColor: COLOR.line },
+  segText: { color: COLOR.sub, fontWeight: '700' },
+  segTextActive: { color: COLOR.text },
 });

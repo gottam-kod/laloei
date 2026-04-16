@@ -19,11 +19,9 @@ import {
 import { BackgroundFX } from '@/src/components/Background';
 import { instanceAxios } from '@/src/connections/http';
 import { RootStackParamList } from '@/src/navigation/RootStackParamList';
-import { useTheme } from '@/src/theme/useTheme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MemberCard from './components/MemberCard';
-
-const { theme, mode, toggleMode, THEME } = useTheme();
+import { COLOR, theme } from '@/src/theme/token';
 type Props = {
   onBack?: () => void;
   onOpenMember?: (id: string) => void;
@@ -149,115 +147,115 @@ const TeamScreen: React.FC<Props> = ({ onOpenMember, onCall, onChat, onEmail }) 
   const data = useMemo(() => members, [members]);
 
   return (
-  <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
-    <BackgroundFX />
-    <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFD' }}>
+      <BackgroundFX />
+      <StatusBar barStyle="dark-content" />
 
-    {/* Top App Bar แบบเรียบ */}
-    <View style={styles.header}>
-                <View style={styles.logoCircle}><Ionicons name="checkbox-outline" size={22} color={theme.color.primary}/></View>
-                <Text style={styles.title}>Task List</Text>
-                <View style={{ flex:1 }}/>
-                {/* <SortButton /> */}
+      {/* Top App Bar แบบเรียบ */}
+      <View style={styles.header}>
+        <View style={styles.logoCircle}><Ionicons name="checkbox-outline" size={22} color={COLOR.primary} /></View>
+        <Text style={styles.title}>Task List</Text>
+        <View style={{ flex: 1 }} />
+        {/* <SortButton /> */}
+      </View>
+
+      {/* เนื้อหา */}
+      {loading && data.length === 0 ? (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+          <ActivityIndicator />
+          <Text style={{ color: COLOR.dim }}>กำลังโหลดรายชื่อทีม…</Text>
+        </View>
+      ) : (
+        <FlatList
+          contentContainerStyle={{ padding: 16, paddingBottom: 140 }}
+          data={data}
+          keyExtractor={(m) => m.id}
+          // ทำให้ Search/Filter ลอยเป็นหัว list (ติดอยู่บนสุดเวลาเลื่อน)
+          ListHeaderComponent={
+            <View style={{ gap: 10 }}>
+              {/* Search */}
+              <View style={styles.searchWrap}>
+                <Ionicons name="search" size={18} color={COLOR.dim} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="ค้นหาชื่อ, ตำแหน่ง หรือแผนก"
+                  value={query}
+                  onChangeText={setQuery}
+                  returnKeyType="search"
+                  placeholderTextColor="#9AA7B2"
+                />
+                {query.length > 0 && (
+                  <TouchableOpacity onPress={() => setQuery('')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Ionicons name="close-circle" size={18} color={COLOR.dim} />
+                  </TouchableOpacity>
+                )}
               </View>
 
-    {/* เนื้อหา */}
-    {loading && data.length === 0 ? (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-        <ActivityIndicator />
-        <Text style={{ color: theme.color.dim }}>กำลังโหลดรายชื่อทีม…</Text>
-      </View>
-    ) : (
-      <FlatList
-        contentContainerStyle={{ padding: 16, paddingBottom: 140 }}
-        data={data}
-        keyExtractor={(m) => m.id}
-        // ทำให้ Search/Filter ลอยเป็นหัว list (ติดอยู่บนสุดเวลาเลื่อน)
-        ListHeaderComponent={
-          <View style={{ gap: 10 }}>
-            {/* Search */}
-            <View style={styles.searchWrap}>
-              <Ionicons name="search" size={18} color={theme.color.dim} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="ค้นหาชื่อ, ตำแหน่ง หรือแผนก"
-                value={query}
-                onChangeText={setQuery}
-                returnKeyType="search"
-                placeholderTextColor="#9AA7B2"
-              />
-              {query.length > 0 && (
-                <TouchableOpacity onPress={() => setQuery('')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                  <Ionicons name="close-circle" size={18} color={theme.color.dim} />
-                </TouchableOpacity>
-              )}
+              {/* Filters แบบ segmented เบาๆ */}
+              <View style={styles.segmentBar}>
+                {FILTERS.map(f => {
+                  const active = filter === f.key;
+                  return (
+                    <TouchableOpacity
+                      key={f.key}
+                      onPress={() => setFilter(f.key)}
+                      style={[styles.segment, active && styles.segmentActive]}
+                      activeOpacity={0.9}
+                    >
+                      <Text style={[styles.segmentTxt, active && styles.segmentTxtActive]}>{f.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-
-            {/* Filters แบบ segmented เบาๆ */}
-            <View style={styles.segmentBar}>
-              {FILTERS.map(f => {
-                const active = filter === f.key;
-                return (
-                  <TouchableOpacity
-                    key={f.key}
-                    onPress={() => setFilter(f.key)}
-                    style={[styles.segment, active && styles.segmentActive]}
-                    activeOpacity={0.9}
-                  >
-                    <Text style={[styles.segmentTxt, active && styles.segmentTxtActive]}>{f.label}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                abortRef.current?.abort();
+                const controller = new AbortController();
+                abortRef.current = controller;
+                fetchMembers({ showLoader: false, signal: controller.signal });
+              }}
+            />
+          }
+          ListEmptyComponent={
+            <View style={[styles.cardEmpty, { alignItems: 'center' }]}>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: COLOR.dark }}>ไม่พบสมาชิก</Text>
+              <Text style={{ fontSize: 13, color: COLOR.dim, marginTop: 6 }}>ลองเปลี่ยนตัวกรองหรือค้นหาใหม่</Text>
             </View>
-          </View>
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              abortRef.current?.abort();
-              const controller = new AbortController();
-              abortRef.current = controller;
-              fetchMembers({ showLoader: false, signal: controller.signal });
-            }}
-          />
-        }
-        ListEmptyComponent={
-          <View style={[styles.cardEmpty, { alignItems: 'center' }]}>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: theme.color.dark }}>ไม่พบสมาชิก</Text>
-            <Text style={{ fontSize: 13, color: theme.color.dim, marginTop: 6 }}>ลองเปลี่ยนตัวกรองหรือค้นหาใหม่</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <MemberCard
-            m={{
-              ...item,
-              presence: item.presence || { state: 'offline' }
-            }}
-            onPress={() => onOpenMember?.(item.id)}
-            onChat={() => onChat?.(item.id)}
-            onCall={() => item.phone && onCall?.(item.phone)}
-            onEmail={() => item.email && onEmail?.(item.email)}
-          />
-        )}
-      />
-    )}
-  </SafeAreaView>
-);
+          }
+          renderItem={({ item }) => (
+            <MemberCard
+              m={{
+                ...item,
+                presence: item.presence || { state: 'offline' }
+              }}
+              onPress={() => onOpenMember?.(item.id)}
+              onChat={() => onChat?.(item.id)}
+              onCall={() => item.phone && onCall?.(item.phone)}
+              onEmail={() => item.email && onEmail?.(item.email)}
+            />
+          )}
+        />
+      )}
+    </SafeAreaView>
+  );
 }
 
 export default TeamScreen;
 
 const styles = StyleSheet.create({
   // --- Search ---
-  header:{ flexDirection:'row', alignItems:'center', gap:10, marginBottom:12 },
-  logoCircle:{
-    width:36, height:36, borderRadius:18, backgroundColor:'#fff', alignItems:'center', justifyContent:'center',
-    shadowColor:'#000', shadowOpacity:0.06, shadowRadius:8, shadowOffset:{ width:0, height:4 }, elevation:2,
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  logoCircle: {
+    width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2,
   },
-  title:{ fontSize:22, fontWeight:'800', color:theme.color.text },
-  
+  title: { fontSize: 22, fontWeight: '800', color: theme.color.text },
+
   searchWrap: {
     backgroundColor: theme.color.card,
     borderRadius: 14,
@@ -265,7 +263,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 10,
     flexDirection: 'row', alignItems: 'center', gap: 8,
   },
-  searchInput: { flex: 1, fontSize: 14, color: theme.color.dark },
+  searchInput: { flex: 1, fontSize: 14, color: COLOR.dark },
 
   // --- Segmented filter ---
   segmentBar: {
@@ -283,14 +281,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.color.card,
     borderWidth: 1, borderColor: theme.color.line,
   },
-  segmentTxt: { fontSize: 12.5, color: theme.color.dim, fontWeight: '700' },
-  segmentTxtActive: { color: theme.color.brand },
+  segmentTxt: { fontSize: 12.5, color: COLOR.dim, fontWeight: '700' },
+  segmentTxtActive: { color: COLOR.brand },
 
   // --- Empty state card ---
   cardEmpty: {
-    backgroundColor: theme.color.card,
+    backgroundColor: COLOR.card,
     borderRadius: 20,
-    borderWidth: 1, borderColor: theme.color.line,
+    borderWidth: 1, borderColor: COLOR.line,
     padding: 14, marginTop: 14,
   },
 });

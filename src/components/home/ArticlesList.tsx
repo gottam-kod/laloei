@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLOR } from '../../theme/token';
+import { COLOR, theme } from '../../theme/token';
 
 type Article = { id: string; title: string; cover: string };
 type Props = { title?: string; items: Article[]; onPressAll?: () => void };
@@ -24,9 +24,9 @@ export default function ArticlesList({ title='บทความ HR', items, onP
 }
 const styles = StyleSheet.create({
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '900', color: COLOR.text },
+  sectionTitle: { fontSize: 16, fontWeight: '900', color: theme.color.text },
   link: { color: COLOR.info, fontSize: 14, fontWeight: '800' },
-  row: { flexDirection: 'row', columnGap: 12, backgroundColor: COLOR.card, borderRadius: 16, borderWidth: 1, borderColor: COLOR.line, padding: 8, marginTop: 8 },
+  row: { flexDirection: 'row', columnGap: 12, backgroundColor: theme.color.card, borderRadius: 16, borderWidth: 1, borderColor: theme.color.line, padding: 8, marginTop: 8 },
   img: { width: 96, height: 72, borderRadius: 12 },
-  title: { fontSize: 14, fontWeight: '800', color: COLOR.text },
+  title: { fontSize: 14, fontWeight: '800', color: theme.color.text },
 });

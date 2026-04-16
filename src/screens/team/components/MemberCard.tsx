@@ -1,10 +1,8 @@
-import { useTheme } from '@/src/theme/useTheme';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Member } from '../types/team';
-
-const { theme, mode, toggleMode, THEME } = useTheme();
+import { COLOR, theme } from '@/src/theme/token';
 
 type Props = {
   m: Member;
@@ -117,7 +115,7 @@ function IconBtn({ name, onPress, disabled }: { name: string; onPress?: () => vo
       disabled={disabled}
       style={[styles.iconBtn, disabled && { opacity: 0.4 }]}
     >
-      <Ionicons name={name} size={16} color={theme.color.sub} />
+      <Ionicons name={name} size={16} color={COLOR.sub} />
     </TouchableOpacity>
   );
 }
@@ -126,9 +124,9 @@ const AVATAR = 52;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.color.card,
+    backgroundColor: COLOR.card,
     borderRadius: 16,
-    borderWidth: 1, borderColor: theme.color.line,
+    borderWidth: 1, borderColor: COLOR.line,
     padding: 16,
     marginTop: 16,
   },
@@ -145,12 +143,12 @@ const styles = StyleSheet.create({
   presenceDot: {
     position: 'absolute', right: -2, bottom: -2,
     width: 14, height: 14, borderRadius: 7,
-    borderWidth: 2, borderColor: theme.color.card,
+    borderWidth: 2, borderColor: COLOR.card,
   },
 
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  name: { fontSize: 16, fontWeight: '900', color: theme.color.text },
-  sub: { fontSize: 12.5, color: theme.color.sub, marginTop: 2 },
+  name: { fontSize: 16, fontWeight: '900', color: COLOR.text },
+  sub: { fontSize: 12.5, color: COLOR.sub, marginTop: 2 },
 
   leaderBadge: {
     flexDirection: 'row', alignItems: 'center',

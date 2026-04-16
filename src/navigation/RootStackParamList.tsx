@@ -2,7 +2,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type RootStackParamList = {
-  AuthStack: undefined;
+  AuthStack: NavigatorScreenParams<AuthStackParamList> | undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   VerifyEmail: { email?: string } | undefined; // ใช้ optional OK ถ้าหน้าจอรองรับค่าเปล่า
 };

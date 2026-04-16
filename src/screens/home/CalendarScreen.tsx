@@ -15,6 +15,7 @@ import { BackgroundFX } from "../../components/Background";
 import { COLOR } from "../../theme/token";
 import { useTranslation } from "react-i18next";
 import { ThaiLocale } from "@/src/utails/calendar-locale";
+import { eachDay } from "@/src/utails/calendar";
 
 
 /* ====== Mock Data (แทนด้วย API จริงได้) ====== */
@@ -53,15 +54,6 @@ type MarkedDates = Record<string, {
   selectedTextColor?: string;
 }>;
 
-const addDays = (iso: string, n: number) => {
-  const d = new Date(iso); d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
-};
-const eachDay = (startISO: string, endISO: string) => {
-  const out: string[] = []; let cur = startISO;
-  while (cur <= endISO) { out.push(cur); cur = addDays(cur, 1); }
-  return out;
-};
 function buildMarkedDates(leaves: LeaveItem[], selected?: string): MarkedDates {
   const md: MarkedDates = {};
   for (const lv of leaves) {
@@ -214,15 +206,6 @@ export default function CalendarScreen() {
             ))
           )}
         </View>
-
-        {/* Floating Add Button */}
-        {/* <TouchableOpacity
-          style={S.fab}
-          onPress={() => nav.navigate("LeaveRequestScreen")}
-        >
-          <Ionicons name="add" size={22} color="#fff" />
-          <Text style={S.fabText}>ขอลา</Text>
-        </TouchableOpacity> */}
       </SafeAreaView>
     </LinearGradient>
   );

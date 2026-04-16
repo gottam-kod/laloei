@@ -1,8 +1,8 @@
 import React, { memo, ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { UI } from '../theme/token';
+import { theme } from '../theme/token';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export type QuickAction = {
   badge: ReactNode;
@@ -34,7 +34,7 @@ export const QuickActions = memo(function QuickActions({items,onPress}:{items:Qu
         >
           <View style={S.tileIconWrap}>
             <LinearGradient colors={['#FFFFFF','#51c7e8ff']} start={{x:0,y:0}} end={{x:1,y:1}} style={S.tileIcon}>
-              <Ionicons name={it.icon} size={18} color={UI.color.text}/>
+              <Ionicons name={it.icon} size={18} color={theme.color.text}/>
             </LinearGradient>
           </View>
           <View style={{flexDirection:'row', alignItems:'center', gap:6}}>
@@ -49,16 +49,16 @@ export const QuickActions = memo(function QuickActions({items,onPress}:{items:Qu
 
 const S = StyleSheet.create({
    /* Quick */
-   qaRow:{ flexDirection:'row', flexWrap:'wrap', gap:UI.space.md, justifyContent:'space-between' },
-   tile:{ width:'48%', paddingVertical:16, paddingHorizontal:14, backgroundColor:UI.color.card, borderRadius:UI.radius.xl, borderWidth:1, borderColor:UI.color.line, ...UI.shadowCard },
+   qaRow:{ flexDirection:'row', flexWrap:'wrap', gap:theme.space.md, justifyContent:'space-between' },
+   tile:{ width:'48%', paddingVertical:16, paddingHorizontal:14, backgroundColor:theme.color.card, borderRadius:theme.radius.xl, borderWidth:1, borderColor:theme.color.line, ...theme.shadowCard },
    tileIconWrap:{ marginBottom:8 },
-   tileTxt:{ fontSize:UI.font.body, fontWeight:'800', color:UI.color.text },
-   badgeSmall:{ height:18, paddingHorizontal:6, backgroundColor:'#ef4444', borderRadius:UI.radius.pill, alignItems:'center', justifyContent:'center' },
+   tileTxt:{ fontSize:theme.font.body, fontWeight:'800', color:theme.color.text },
+   badgeSmall:{ height:18, paddingHorizontal:6, backgroundColor:'#ef4444', borderRadius:theme.radius.pill, alignItems:'center', justifyContent:'center' },
    badgeSmallTxt:{ color:'#fff', fontSize:11, fontWeight:'800' },
 
   tileFloat:{
     backgroundColor:'rgba(42, 197, 236, 0.28)',
-    borderRadius:UI.radius.xl,
+    borderRadius:theme.radius.xl,
     paddingVertical:16, paddingHorizontal:14,
     borderWidth:1, borderColor:'rgba(255,255,255,0.65)',
     shadowColor:'#0f172a', shadowOpacity:0.08, shadowRadius:12, elevation:2,

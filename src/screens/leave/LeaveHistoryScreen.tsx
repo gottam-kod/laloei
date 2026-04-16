@@ -122,14 +122,13 @@ const LeaveHistoryScreen: React.FC<Props> = ({ onBack, onCreateRequest, onOpenDe
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFD' }} edges={['left', 'right']}>
-      {/* <View style={StyleSheet.absoluteFill} pointerEvents="none"> */}
-        <BackgroundFX />
+      <BackgroundFX />
       {/* </View> */}
       <StatusBar barStyle="dark-content" />
 
       {/* Header */}
       <LinearGradient
-        colors={[COLOR.bgTopA, COLOR.bgTopB]}
+        colors={[COLOR.bgTop, COLOR.bgBottom]}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
         style={styles.headerWrap}
       >
@@ -170,7 +169,7 @@ const LeaveHistoryScreen: React.FC<Props> = ({ onBack, onCreateRequest, onOpenDe
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         renderSectionHeader={({ section }) => (
           <View style={{ paddingHorizontal: 4, paddingTop: 8, paddingBottom: 4 }}>
-            <Text style={{ fontWeight: '900', color: COLOR.dark, fontFamily: FONT.bodyBold }}>{section.title}</Text>
+            <Text style={{ fontWeight: '900', color: COLOR.dark, fontFamily: FONT.bodyBold }}>{section.title}</Text>  {/* invalid Date */}
           </View>
         )}
         renderItem={({ item }) => (

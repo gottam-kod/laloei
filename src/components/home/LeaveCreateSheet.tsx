@@ -1,4 +1,4 @@
-import { COLOR, UI } from '@/src/theme/token';
+import { COLOR, theme } from '@/src/theme/token';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import SimpleSheet from './SimpleSheet';
@@ -26,7 +26,7 @@ export default function LeaveCreateSheet({ visible, onClose }: Props) {
 }
 const styles = StyleSheet.create({
   label:{ color:COLOR.text, fontWeight:'800' },
-  input:{ backgroundColor:'#F1F5F9', borderRadius:UI.radius.xl, padding:12, borderWidth:1, borderColor:'#E2E8F0', color:COLOR.text },
-  btn:{ backgroundColor:'#0B8AD9', paddingVertical:12, borderRadius:UI.radius.pill, alignItems:'center' },
+  input:{ backgroundColor:'#F1F5F9', borderRadius:theme.radius.xl, padding:12, borderWidth:1, borderColor:'#E2E8F0', color:COLOR.text },
+  btn:{ backgroundColor:'#0B8AD9', paddingVertical:12, borderRadius:theme.radius.pill, alignItems:'center' },
   btnTxt:{ color:'#fff', fontWeight:'900' },
 });

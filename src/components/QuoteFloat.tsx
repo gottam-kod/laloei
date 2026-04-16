@@ -1,7 +1,7 @@
 // components/QuoteFloat.tsx
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Animated, Easing, LayoutChangeEvent } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 
 export default function QuoteFloat({
   th = 'ความพยายามอยู่ที่ไหน ความสำเร็จอยู่ที่นั่น',

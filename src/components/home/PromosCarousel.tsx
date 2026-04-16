@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { COLOR, SP } from '../../theme/token';
+import { SP, theme } from '../../theme/token';
 
 type Promo = { id: string; title: string; cover: string };
 type Props = { title?: string; items: Promo[] };
@@ -20,8 +20,8 @@ export default function PromosCarousel({ title='บริการแนะน�
   );
 }
 const styles = StyleSheet.create({
-  sectionTitle: { fontSize: 16, fontWeight: '900', color: COLOR.text, marginBottom: 8 },
-  card: { width: 240, backgroundColor: COLOR.card, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: COLOR.line },
+  sectionTitle: { fontSize: 16, fontWeight: '900', color: theme.color.text, marginBottom: 8 },
+  card: { width: 240, backgroundColor: theme.color.card, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: theme.color.line },
   img: { width: 240, height: 120 },
-  txt: { padding: 10, fontSize: 14, color: COLOR.text, fontWeight: '800' },
+  txt: { padding: 10, fontSize: 14, color: theme.color.text, fontWeight: '800' },
 });

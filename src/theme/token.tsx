@@ -60,7 +60,7 @@ type Typography = {
 };
 
 type Radius = { md: number; lg: number; xl: number; pill: number };
-type Space  = { xs: number; sm: number; md: number; lg: number; xl: number; xxl: number };
+type Space = { xs: number; sm: number; md: number; lg: number; xl: number; xxl: number };
 
 export const FONT = {
   heading: 'Kanit-SemiBold',
@@ -87,8 +87,8 @@ export type Theme = {
 /* ----------------------------- BASE TOKENS ------------------------------ */
 
 const radius: Radius = { md: 12, lg: 16, xl: 20, pill: 999 };
-const space:  Space  = { xs: 6,  sm: 8,  md: 12, lg: 16, xl: 20, xxl: 28 };
-const font:   Typography = { h1: 18, h2: 15, body: 14, meta: 12 };
+const space: Space = { xs: 6, sm: 8, md: 12, lg: 16, xl: 20, xxl: 28 };
+const font: Typography = { h1: 18, h2: 15, body: 14, meta: 12 };
 
 // shadow helper ให้สัมผัสใกล้เคียงกัน iOS/Android
 const makeCardShadow = (mode: ThemeMode): Shadow => ({
@@ -104,24 +104,24 @@ const makeCardShadow = (mode: ThemeMode): Shadow => ({
 const lightPalette: Palette = {
   // Base / Surfaces
   bg: '#F6F8FA',
-  card: '#FFFFFF',
+  card: '#d2f8f0d1',
   line: 'rgba(15,23,42,0.08)',
   border: '#E2E8F0',
   text: '#0F172A',
   sub: '#5B6B80',
 
   // Brand / Semantic
-  primary:   '#2AA5E1', // รวม primary/brand เป็นโทนเดียว
-  primaryDark:'#1479FF',
-  info:      '#2EA8FF',
-  success:   '#20C997',
-  warn:      '#FFB020',
-  danger:    '#EF4444',
+  primary: '#2AA5E1', // รวม primary/brand เป็นโทนเดียว
+  primaryDark: '#1479FF',
+  info: '#2EA8FF',
+  success: '#20C997',
+  warn: '#FFB020',
+  danger: '#EF4444',
 
   // Accents
-  accent:     '#0EA5A5',
+  accent: '#0EA5A5',
   accentDark: '#0B8F86',
-  muted:      '#EEF2F6',
+  muted: '#EEF2F6',
 
   // Chips
   chipBlue: '#EAF2FF',
@@ -131,14 +131,14 @@ const lightPalette: Palette = {
   // Gradients / History
   bgTopA: '#E8F3FF',
   bgTopB: '#F4FBFF',
-  brand:  '#2AA5E1',
-  dark:   '#0F172A',
-  dim:    '#607089',
+  brand: '#2AA5E1',
+  dark: '#0F172A',
+  dim: '#607089',
 
   // Extra
   brandSoft: '#E0F2FF',
   orange: '#F6A21A',
-  teal:   '#2A9DA9',
+  teal: '#2A9DA9',
 };
 
 const darkPalette: Palette = {
@@ -148,8 +148,8 @@ const darkPalette: Palette = {
   line: 'rgba(255,255,255,0.06)',
   border: 'rgba(255,255,255,0.12)',
   text: '#F8FAFC',
-  sub:  '#C6CEDA',
-  muted:'#152133',
+  sub: '#C6CEDA',
+  muted: '#152133',
   chipBlue: '#152642',
   chipTeal: '#103237',
   chipGold: '#2A220F',
@@ -201,58 +201,66 @@ export const COLOR = {
   backgroundColor: lightPalette.card,
   bgTopA: '#8bb4df', // ถ้าจำเป็นต้องคงค่าพิเศษ
   bgTopB: '#2e6382',
-  gradA:  '#70d6f5ff',
-  gradB:  '#EAFDF6',
-  brand:  lightPalette.brand,
+  gradA: '#70d6f5ff',
+  gradB: '#EAFDF6',
+  brand: lightPalette.brand,
   brand2: '#EAFDF6',
-  dark:   lightPalette.dark,
-  dim:    lightPalette.dim,
-  card:   lightPalette.card,
-  line:   '#EAF0F6',
+  dark: lightPalette.dark,
+  dim: lightPalette.dim,
+  card: lightPalette.card,
+  line: '#EAF0F6',
   success: lightPalette.success,
-  warn:    lightPalette.warn,
+  warn: lightPalette.warn,
   textPrimary: '#1F2937',
-  primary:  lightPalette.primary,
+  primary: lightPalette.primary,
   primary2: lightPalette.primaryDark,
-  accent:   lightPalette.brandSoft,
+  accent: lightPalette.brandSoft,
   textMain: '#1F2937',
   brandSoft: lightPalette.brandSoft,
-  orange:   lightPalette.orange,
-  teal:     lightPalette.teal,
-  text:     '#1F2A33',
-  bgTop:    '#FEFDFC',
+  orange: lightPalette.orange,
+  teal: lightPalette.teal,
+  text: '#1F2A33',
+  bgTop: '#FEFDFC',
   bgBottom: '#F4FAFF',
   appleBlack: '#000000',
-  ok:      '#22C55E',
-  danger:  lightPalette.danger,
-  sub:     lightPalette.sub,
-  border:  lightPalette.border,
-  shadow:  { color: '#000', s: { width: 0, height: 1 }, o: 0.06, r: 8 },
-  info:     lightPalette.info,
-  chip:     lightPalette.chipBlue,
-  al:     '#05f368ff',
-  sl:     '#dff210ff',
-  cl:     '#f97316ff',
-  ul:     '#ef4444ff',
+  ok: '#22C55E',
+  danger: lightPalette.danger,
+  sub: lightPalette.sub,
+  border: lightPalette.border,
+  shadow: { color: '#000', s: { width: 0, height: 1 }, o: 0.06, r: 8 },
+  info: lightPalette.info,
+  chip: lightPalette.chipBlue,
+  al: '#05f368ff',
+  sl: '#dff210ff',
+  cl: '#f97316ff',
+  ul: '#ef4444ff',
   chipText: '#0F172A',
 };
 
-// UI (เก่า) → โยงเข้าชุดใหม่
-export const UI = {
+export const theme = {
   color: {
     bg: lightPalette.bg,
-    card: '#a12525ff', // ถ้าจำเป็นต้องคงค่า card สีแดงสำหรับกรณีพิเศษ
-    line: lightPalette.line,
     text: lightPalette.text,
-    sub:  '#6B7A90',
+    sub: '#6B7A90',
     accent: lightPalette.accent,
     accentDark: lightPalette.accentDark,
     muted: lightPalette.muted,
-    teal1: '#20C6BA',
+    teal1: '#04a8bbff',
     teal2: '#65D3C6',
+    teal3: '#22a6d2ff',
     chipBlue: lightPalette.chipBlue,
     chipTeal: lightPalette.chipTeal,
     chipGold: lightPalette.chipGold,
+    bgTopA: '#CFEAFF',
+    bgTopB: '#E9FEFF',
+    brandA: '#3c97c4ff',
+    brandB: '#90ddcb82',
+    brandSoft: '#E0F2FF',
+    dark: '#0F172A',
+    dim: '#607089',
+    card: 'rgba(255, 255, 255, 0.5)',
+    line: 'rgba(255,255,255,0.65)',
+    danger: '#E5484D',
   },
   radius,
   space,

@@ -1,6 +1,6 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo } from 'react'
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
-import LinearGradient from 'react-native-linear-gradient';
 
 type BackgroundProps = {
   children: React.ReactNode;

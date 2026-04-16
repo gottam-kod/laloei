@@ -1,12 +1,12 @@
-import { useTheme } from '@/src/theme/useTheme';
+
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import type { Task } from '../types';
-
+import { COLOR } from '@/src/theme/token';
 
 const statusToColor = (s: Task['status']) =>
-  s === 'DONE' ? theme.color.success : s === 'REVIEW' ? theme.color.bgTopA : s === 'DOING' ? theme.color.bgTopB : theme.color.danger;
+  s === 'DONE' ? COLOR.success : s === 'REVIEW' ? COLOR.bgTopA : s === 'DOING' ? COLOR.bgTopB : COLOR.danger;
 
 const chip = (backgroundColor: string) => ({
   backgroundColor,
@@ -15,7 +15,6 @@ const chip = (backgroundColor: string) => ({
   paddingVertical: 4,
 });
 
-const { theme, mode, toggleMode, THEME } = useTheme();
 export default function TaskItem({
   item,
   selectMode,
@@ -42,14 +41,14 @@ export default function TaskItem({
         {selectMode ? (
           <TouchableOpacity
             onPress={() => onToggleSelect(item.id)}
-            style={[styles.selBox, selected && { backgroundColor: theme.color.primary, borderColor: theme.color.primary }]}
+            style={[styles.selBox, selected && { backgroundColor: COLOR.primary, borderColor: COLOR.primary }]}
           >
             {selected && <Ionicons name="checkmark" size={16} color="#fff" />}
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             onPress={() => onToggleDone(item)}
-            style={[styles.chkBox, item.status === 'DONE' && { backgroundColor: theme.color.success, borderColor: theme.color.success }]}
+            style={[styles.chkBox, item.status === 'DONE' && { backgroundColor: COLOR.success, borderColor: COLOR.success }]}
           >
             {item.status === 'DONE' && <Ionicons name="checkmark" size={14} color="#fff" />}
           </TouchableOpacity>
@@ -66,7 +65,7 @@ export default function TaskItem({
         </View>
 
         <TouchableOpacity onPress={() => onEdit(item)} style={styles.roundIcon}>
-          <Ionicons name="ellipsis-horizontal" size={18} color={theme.color.text} />
+          <Ionicons name="ellipsis-horizontal" size={18} color={COLOR.text} />
         </TouchableOpacity>
       </View>
 
@@ -77,20 +76,20 @@ export default function TaskItem({
           </Text>
         </View>
         <View style={chip('#a9de46ff')}>
-          <Text style={[styles.chipText, { color: theme.color.text }]}>{item.priority || 'MEDIUM'}</Text>
+          <Text style={[styles.chipText, { color: COLOR.text }]}>{item.priority || 'MEDIUM'}</Text>
         </View>
         {!!item.dueISO && (
           <View style={styles.metaRow}>
-            <Ionicons name="calendar-outline" size={14} color={theme.color.sub} />
+            <Ionicons name="calendar-outline" size={14} color={COLOR.sub} />
             <Text style={styles.metaText}>{item.dueISO}</Text>
           </View>
         )}
         <View style={{ flex: 1 }} />
         <TouchableOpacity onPress={() => onCycleStatus(item)} style={styles.metaIcon}>
-          <Ionicons name="repeat-outline" size={16} color={theme.color.text} />
+          <Ionicons name="repeat-outline" size={16} color={COLOR.text} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => onRemove(item)} style={styles.metaIcon}>
-          <Ionicons name="trash-outline" size={16} color={theme.color.danger} />
+          <Ionicons name="trash-outline" size={16} color={COLOR.danger} />
         </TouchableOpacity>
       </View>
     </View>
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 12,
     borderWidth: 1,
-    borderColor: theme.color.line,
+    borderColor: COLOR.line,
     marginBottom: 10,
     shadowColor: '#000',
     shadowOpacity: 0.04,
@@ -111,16 +110,16 @@ const styles = StyleSheet.create({
     elevation: 1,
     backgroundColor: '#fff',
   },
-  metaText: { color: theme.color.sub, fontSize: 12 },
+  metaText: { color: COLOR.sub, fontSize: 12 },
   taskHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-  chkBox: { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: theme.color.success, alignItems: 'center', justifyContent: 'center' },
-  selBox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: theme.color.primary, alignItems: 'center', justifyContent: 'center' },
-  taskTitle: { color: theme.color.text, fontWeight: '800' },
-  taskNote: { color: theme.color.sub, fontSize: 12, marginTop: 2 },
-  roundIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: theme.color.line },
+  chkBox: { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: COLOR.success, alignItems: 'center', justifyContent: 'center' },
+  selBox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: COLOR.primary, alignItems: 'center', justifyContent: 'center' },
+  taskTitle: { color: COLOR.text, fontWeight: '800' },
+  taskNote: { color: COLOR.sub, fontSize: 12, marginTop: 2 },
+  roundIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: COLOR.line },
 
   taskMeta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fff', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.color.line },
-  metaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: theme.color.line },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fff', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: COLOR.line },
+  metaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: COLOR.line },
   chipText: { color: '#fff', fontWeight: '800', fontSize: 12 },
 });

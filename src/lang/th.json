@@ -85,7 +85,18 @@
             "recentActivities": "กิจกรรมล่าสุด",
             "history": "ดูประวัติ",
             "hrNews": "ข่าวสาร HR",
-            "seeAll": "ดูทั้งหมด"
+            "seeAll": "ดูทั้งหมด",
+            "approvalRequests": "มีคำขอรออนุมัติ",
+            "newLeaveRequests": "มีคำขอลาใหม่รอคุณอยู่ {{count}} รายการ",
+            "goToApproval": "ไปอนุมัติ",
+            "viewAll": "ดูรายการ",
+            "noRecentLeaveRequests": "ยังไม่มีคำขอลาล่าสุด",
+            "noPendingApprovals": "ไม่มีคำขอที่รออนุมัติ",
+            "textstartleave": "เริ่มขอลาง่าย ๆ ได้เลย ใช้เวลาไม่ถึง 1 นาที",
+            "teamCalendar": "ปฏิทินทีม",
+            "myPendingRequests": "คำขอของฉันกำลังรออนุมัติ",
+            "pastLeaves": "ลาที่ผ่านมา"
+
         },
         "empty": "ไม่มีรายการในมุมมองนี้",
         "shortcuts": "ทางลัด"
@@ -101,7 +112,7 @@
         "reject": "ปฏิเสธ",
         "viewDetails": "ดูรายละเอียด",
         "viewAll": "ดูทั้งหมด",
-        "requestLeave": "+ ขอลา",
+        "requestLeave": "ขอลา",
         "edit": "แก้ไข",
         "delete": "ลบ",
         "submit": "ส่ง",
@@ -204,8 +215,14 @@
         "noComments": "ไม่มีความคิดเห็น",
         "submittedAt": "ยื่นคำขอ",
         "start": "เริ่ม",
+        "startIn": "เริ่มใน",
         "end": "สิ้นสุด",
-        "quickActions": "ทางลัด"
+        "quickActions": "ทางลัด",
+        "newRequest": "ขอใหม่",
+        "rejectedRequest": "คำขอถูกปฏิเสธ",
+        "cancelledRequest": "คำขอยกเลิกแล้ว",
+        "resubmit": "ยื่นใหม่",
+        "approver": "ผู้อนุมัติ"
     },
     "profile": {
         "settings": "การตั้งค่า",

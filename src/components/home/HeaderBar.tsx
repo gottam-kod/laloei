@@ -1,7 +1,7 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React from 'react';
 import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLOR, UI, SP, FONT } from '../../theme/token';
+import { COLOR, theme, SP, FONT } from '../../theme/token';
 
 type Props = {
   titleOpacity: Animated.AnimatedInterpolation<number>,
@@ -32,6 +32,6 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', columnGap: SP.sm },
   appTitle: { fontSize: 20, fontWeight: '800', color: COLOR.text },
   appSub: { fontSize: 12, color: COLOR.sub, marginTop: 2 },
-  iconBtn: { padding: 10, backgroundColor: COLOR.card, borderRadius: UI.radius.xl, borderWidth: 1, borderColor: COLOR.line },
+  iconBtn: { padding: 10, backgroundColor: COLOR.card, borderRadius: theme.radius.xl, borderWidth: 1, borderColor: COLOR.line },
   avatar: { width: 34, height: 34, borderRadius: 17, marginLeft: SP.sm },
 });

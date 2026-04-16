@@ -1,17 +1,16 @@
-import { useTheme } from '@/src/theme/useTheme';
+
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { COLOR } from '@/src/theme/token';
 
-
-const { theme, mode, toggleMode, THEME } = useTheme();
 export default function SummaryCard({
   color, icon, label, value,
 }: { color: string; icon: string; label: string; value: number }) {
   return (
     <View style={[styles.summaryCard, { backgroundColor: color }]}>
       <View style={styles.summaryIcon}>
-        <Ionicons name={icon as any} size={16} color={theme.color.text} />
+        <Ionicons name={icon as any} size={16} color={COLOR.text} />
       </View>
       <Text style={styles.summaryValue}>{value}</Text>
       <Text style={styles.summaryLabel}>{label}</Text>
@@ -25,7 +24,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 12,
     borderWidth: 1,
-    borderColor: theme.color.line,
+    borderColor: COLOR.line,
   },
   summaryIcon: {
     width: 28,
@@ -36,6 +35,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6,
   },
-  summaryValue: { fontSize: 18, fontWeight: '800', color: theme.color.text },
-  summaryLabel: { fontSize: 12, color: theme.color.sub },
+  summaryValue: { fontSize: 18, fontWeight: '800', color: COLOR.text },
+  summaryLabel: { fontSize: 12, color: COLOR.sub },
 });

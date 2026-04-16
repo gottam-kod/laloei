@@ -54,17 +54,42 @@ const EnglishDateString = (date: Date): string => {
     return `Date: ${day}/${englishMonths[date.getMonth()]}/${year}`;
 }
 
+
+
+const daysUntil = (dateStr: string): number => {
+  const d = new Date(dateStr);
+  const today = new Date();
+  d.setHours(0,0,0,0); today.setHours(0,0,0,0);
+  const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+  return diff;
+}
+
+
+const addDays = (iso: string, n: number) => {
+  const d = new Date(iso); d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+const eachDay = (startISO: string, endISO: string) => {
+  const out: string[] = []; let cur = startISO;
+  while (cur <= endISO) { out.push(cur); cur = addDays(cur, 1); }
+  return out;
+};
+
+
 export {
     DayString,
     ThaiDayString,
     DateString, 
     ThaiDateString,
-     EnglishDateString,
+    EnglishDateString,
     thaiDays,
     englishDays,
     thaiMonths,
     englishMonths,
     thMonths,
     enMonths,
-    toThaiDate
+    toThaiDate,
+    daysUntil,
+    eachDay,
+    addDays
 };

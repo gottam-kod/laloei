@@ -8,18 +8,18 @@ import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-
 import * as SplashScreen from 'expo-splash-screen';
 import * as SecureStore from 'expo-secure-store';
 import * as Localization from 'expo-localization';
-import i18n from './src/lang/i18n'; // ไฟล์ตั้งค่า i18next ของคุณ
+import i18n from './src/lang/i18n';
 import { navigationRef } from './src/navigation/navigationRef';
 import { AppState } from 'react-native';
 import { loadFonts } from './src/theme/fonts';
-SplashScreen.preventAutoHideAsync();
+import { CONSTANTS } from './src/config';
 
 
 const theme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        background: '#ffffff', // กันไม่ให้จอดำ
+        background: '#ffffff',
     },
 };
 
@@ -28,7 +28,7 @@ const queryClient = new QueryClient({
         queries: {
             retry: (failCount, err: any) =>
                 failCount < 1 && !(err?.status >= 400 && err?.status < 500),
-            refetchOnWindowFocus: false, // RN ไม่มี window-focus เหมือนเว็บ แต่เผื่อไว้
+            refetchOnWindowFocus: false,
             staleTime: 5 * 60 * 1000,
             gcTime: 30 * 60 * 1000,
         },
@@ -38,17 +38,19 @@ const queryClient = new QueryClient({
 export default function App() {
     const [ready, setReady] = useState(false);
 
-    console.log('App render, ready=', ready);
+ 
     React.useEffect(() => {
         (async () => {
             try {
-                const stored = await SecureStore.getItemAsync('app-lang');
+                await SplashScreen.preventAutoHideAsync();
+                const stored = await SecureStore.getItemAsync(CONSTANTS.LS_LANG);
                 const fallback = (Localization.getLocales()[0]?.languageCode || '').startsWith('th') ? 'th' : 'en';
                 const want = stored ?? fallback;
                 const current = (i18n.resolvedLanguage || i18n.language || '').slice(0, 2);
                 if (current !== want) await i18n.changeLanguage(want);
                 await loadFonts();
                 setReady(true);
+               
                 await SplashScreen.hideAsync();
             } catch (e) {
                 console.warn('load lang error:', e);

@@ -1,7 +1,7 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React from 'react';
 import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { COLOR, UI } from '../../theme/token';
+import { COLOR, theme } from '../../theme/token';
 import type { QuickItem } from './QuickGrid';
 
 type Props = {
@@ -47,6 +47,6 @@ const styles = StyleSheet.create({
   item: { flexBasis: '25%', maxWidth: '25%', alignItems: 'center', marginBottom: 14 },
   circle: { width: 70, height: 70, borderRadius: 35, backgroundColor: COLOR.card, borderWidth: 1, borderColor: COLOR.line, justifyContent: 'center', alignItems: 'center' },
   label: { marginTop: 8, fontSize: 12, color: COLOR.text, textAlign: 'center', fontWeight: '700', paddingHorizontal: 4 },
-  pill: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: UI.radius.pill, backgroundColor: '#E6EBF2', alignSelf: 'center', marginTop: 10 },
+  pill: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: theme.radius.pill, backgroundColor: '#E6EBF2', alignSelf: 'center', marginTop: 10 },
   pillTxt: { fontSize: 14, color: COLOR.text, fontWeight: '800' },
 });

@@ -85,9 +85,21 @@
             "recentActivities": "Recent Activities",
             "history": "View History",
             "hrNews": "HR News",
-            "seeAll": "See All"
+            "seeAll": "See All",
+            "approvalRequests": "You have approval requests",
+            "newLeaveRequests": "You have {{count}} new leave requests waiting for you",
+            "goToApproval": "Go to Approval",
+            "viewAll": "View All",
+            "noRecentLeaveRequests": "No recent leave requests",
+            "noPendingApprovals": "No pending approvals",
+            "textstartleave": "Start your leave request easily, it takes less than 1 minute",
+            "teamCalendar": "Team Calendar",
+            "myPendingRequests": "My pending requests",
+            "pastLeaves": "Past Leaves"
         },
-        "empty": "No items in this view"
+        "empty": "No items in this view",
+        "shortcuts": "Shortcuts"
+
     },
     "status": {
         "PENDING": "pending",
@@ -190,8 +202,14 @@
         "addComment": "Add Comment",
         "submittedAt": "Submit Comment",
         "start": "Start",
+        "startIn": "Start In",
         "end": "End",
-        "quickActions": "Quick Actions"
+        "quickActions": "Quick Actions",
+         "newRequest": "New Request",
+        "rejectedRequest": "Rejected Request",
+        "cancelledRequest": "Cancelled Request",
+        "resubmit": "Resubmit",
+        "approver": "Approver"
     },
     "profile": {
         "settings": "Settings",

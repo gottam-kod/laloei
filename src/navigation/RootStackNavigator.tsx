@@ -6,12 +6,15 @@ import MainTabs from './MainTabs';
 import { useAuthStore, useIsLoggedIn } from '../store/useAuthStore';
 import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen';
 
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootStackNavigator() {
   const hydrated = useAuthStore((s) => s.hydrated);
   if (!hydrated) return null; // หรือ Splash ระหว่างรอ
-  const isLoggedIn = useIsLoggedIn();
+  // const isLoggedIn = useIsLoggedIn() ;
+  const isLoggedIn = false;
+
   // const isSignedIn = false; // TODO: ผูกกับ auth จริง
   return (
     <Stack.Navigator

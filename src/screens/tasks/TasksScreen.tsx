@@ -1,5 +1,4 @@
 import { BackgroundFX } from '@/src/components/Background';
-import { useTheme } from '@/src/theme/useTheme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -12,8 +11,8 @@ import SummaryCard from './components/SummaryCard';
 import TaskFormModal from './components/TaskFormModal';
 import TaskItem from './components/TaskItem';
 import type { Priority, Task, TaskStatus } from './types';
+import { COLOR } from '@/src/theme/token';
 
-const { theme, mode, toggleMode, THEME } = useTheme();
 /* ========== Mock API (แทนด้วย service จริงของคุณได้ทันที) ========== */
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 const fakeDB: Task[] = [
@@ -142,7 +141,7 @@ export default function TasksScreen() {
       const order = ['DUE','PRIORITY','TITLE'] as const;
       const i = order.indexOf(sortKey); setSortKey(order[(i+1)%order.length]);
     }} style={styles.iconBtn}>
-      <Ionicons name="filter-outline" size={18} color={theme.color.text} />
+      <Ionicons name="filter-outline" size={18} color={COLOR.text} />
       <Text style={styles.iconBtnText}>
         {sortKey==='DUE'?'ครบกำหนด':sortKey==='PRIORITY'?'ความสำคัญ':'ชื่อ'}
       </Text>
@@ -156,7 +155,7 @@ export default function TasksScreen() {
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.logoCircle}><Ionicons name="checkbox-outline" size={22} color={theme.color.primary}/></View>
+            <View style={styles.logoCircle}><Ionicons name="checkbox-outline" size={22} color={COLOR.primary}/></View>
             <Text style={styles.title}>Task List</Text>
             <View style={{ flex:1 }}/>
             <SortButton />
@@ -184,19 +183,19 @@ export default function TasksScreen() {
               onChange={k=>setFilter(k as any)}
             />
             <View style={styles.searchWrap}>
-              <Ionicons name="search-outline" size={16} color={theme.color.sub}/>
+              <Ionicons name="search-outline" size={16} color={COLOR.sub}/>
               <TextInput
                 value={query} onChangeText={setQuery}
-                placeholder="ค้นหางาน..." placeholderTextColor={theme.color.sub}
+                placeholder="ค้นหางาน..." placeholderTextColor={COLOR.sub}
                 style={styles.searchInput} returnKeyType="search"
               />
               {!selectMode ? (
                 <TouchableOpacity onPress={()=>{ setSelectMode(true); setSelected({}); }} style={styles.iconBtn}>
-                  <Ionicons name="checkbox" size={18} color={theme.color.text}/>
+                  <Ionicons name="checkbox" size={18} color={COLOR.text}/>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity onPress={clearSelection} style={styles.iconBtn}>
-                  <Ionicons name="close-outline" size={20} color={theme.color.text}/>
+                  <Ionicons name="close-outline" size={20} color={COLOR.text}/>
                 </TouchableOpacity>
               )}
             </View>
@@ -212,7 +211,7 @@ export default function TasksScreen() {
               <TouchableOpacity onPress={()=>bulkStatus('DONE')} style={styles.bulkBtn}>
                 <Ionicons name="checkmark-done-outline" size={16} color="#fff"/><Text style={styles.bulkBtnText}>ทำเสร็จ</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={bulkDelete} style={[styles.bulkBtn,{ backgroundColor: theme.color.danger }]}>
+              <TouchableOpacity onPress={bulkDelete} style={[styles.bulkBtn,{ backgroundColor: COLOR.danger }]}>
                 <Ionicons name="trash-outline" size={16} color="#fff"/><Text style={styles.bulkBtnText}>ลบ</Text>
               </TouchableOpacity>
             </View>
@@ -241,7 +240,7 @@ export default function TasksScreen() {
 
           {/* FAB */}
           <TouchableOpacity onPress={openCreate} activeOpacity={0.9} style={styles.fab}>
-            <LinearGradient colors={[theme.color.primary, theme.color.teal]} style={styles.fabInner}>
+            <LinearGradient colors={[COLOR.primary, COLOR.teal]} style={styles.fabInner}>
               <Ionicons name="add" size={26} color="#fff" />
             </LinearGradient>
           </TouchableOpacity>
@@ -271,23 +270,23 @@ const styles = StyleSheet.create({
     width:36, height:36, borderRadius:18, backgroundColor:'#fff', alignItems:'center', justifyContent:'center',
     shadowColor:'#000', shadowOpacity:0.06, shadowRadius:8, shadowOffset:{ width:0, height:4 }, elevation:2,
   },
-  title:{ fontSize:22, fontWeight:'800', color:theme.color.text },
+  title:{ fontSize:22, fontWeight:'800', color:COLOR.text },
 
-  iconBtn:{ flexDirection:'row', alignItems:'center', gap:6, paddingHorizontal:10, paddingVertical:6, borderRadius:999, backgroundColor:'#fff', borderWidth:1, borderColor:theme.color.line },
-  iconBtnText:{ color:theme.color.text, fontWeight:'700', fontSize:12 },
+  iconBtn:{ flexDirection:'row', alignItems:'center', gap:6, paddingHorizontal:10, paddingVertical:6, borderRadius:999, backgroundColor:'#fff', borderWidth:1, borderColor:COLOR.line },
+  iconBtnText:{ color:COLOR.text, fontWeight:'700', fontSize:12 },
 
   summaryRow:{ flexDirection:'row', gap:10, marginBottom:12 },
 
   controls:{ gap:10, marginBottom:8 },
-  searchWrap:{ flexDirection:'row', alignItems:'center', gap:8, backgroundColor:'#fff', borderRadius:16, paddingHorizontal:12, height:44, borderWidth:1, borderColor:theme.color.line },
-  searchInput:{ flex:1, color:theme.color.text },
+  searchWrap:{ flexDirection:'row', alignItems:'center', gap:8, backgroundColor:'#fff', borderRadius:16, paddingHorizontal:12, height:44, borderWidth:1, borderColor:COLOR.line },
+  searchInput:{ flex:1, color:COLOR.text },
 
-  bulkBar:{ flexDirection:'row', alignItems:'center', gap:10, backgroundColor:'#fff', padding:10, borderRadius:12, borderWidth:1, borderColor:theme.color.line, marginBottom:8 },
-  bulkText:{ color:theme.color.text, fontWeight:'700' },
-  bulkBtn:{ flexDirection:'row', alignItems:'center', gap:6, backgroundColor:theme.color.success, paddingHorizontal:12, paddingVertical:8, borderRadius:999 },
+  bulkBar:{ flexDirection:'row', alignItems:'center', gap:10, backgroundColor:'#fff', padding:10, borderRadius:12, borderWidth:1, borderColor:COLOR.line, marginBottom:8 },
+  bulkText:{ color:COLOR.text, fontWeight:'700' },
+  bulkBtn:{ flexDirection:'row', alignItems:'center', gap:6, backgroundColor:COLOR.success, paddingHorizontal:12, paddingVertical:8, borderRadius:999 },
   bulkBtnText:{ color:'#fff', fontWeight:'800' },
 
-  empty:{ textAlign:'center', color:theme.color.sub, paddingVertical:20 },
+  empty:{ textAlign:'center', color:COLOR.sub, paddingVertical:20 },
 
   fab:{ position:'absolute', right:18, bottom:28 },
   fabInner:{ width:56, height:56, borderRadius:28, alignItems:'center', justifyContent:'center',

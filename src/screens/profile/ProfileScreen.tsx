@@ -15,11 +15,12 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import LanguageSheet from '../components/LanguageSheet';
-import { ProfileStackParamList } from '../navigation/RootStackParamList';
-import { useAuthStore, useUserRole } from '../store/useAuthStore';
-import { BackgroundFX } from '../components/Background';
-import { SectionTitle } from '../components';
+import { SectionTitle } from '../../components';
+import { BackgroundFX } from '../../components/Background';
+import LanguageSheet from '../../components/LanguageSheet';
+import { ProfileStackParamList } from '../../navigation/RootStackParamList';
+import { useAuthStore, useUserRole } from '../../store/useAuthStore';
+import { CONSTANTS } from '@/src/config';
 
 // ---------- Theme ----------
 const COLOR = {
@@ -83,7 +84,7 @@ const ProfileLaloei: React.FC<Props> = ({
   const currentLabel = currentLangCode === 'th' ? 'ไทย' : 'English';
 
   useEffect(() => {
-    SecureStore.getItemAsync('app-lang').then((l) => {
+    SecureStore.getItemAsync(CONSTANTS.LS_LANG).then((l) => {
       if (l === 'th' || l === 'en') i18n.changeLanguage(l);
     });
   }, []);
@@ -94,7 +95,7 @@ const ProfileLaloei: React.FC<Props> = ({
       if (current === l) return;
       try {
         await i18n.changeLanguage(l);
-        await SecureStore.setItemAsync('app-lang', l);
+        await SecureStore.setItemAsync(CONSTANTS.LS_LANG, l);
       } catch (e) {
         console.warn('changeLanguage error:', e);
       }
