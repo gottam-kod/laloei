@@ -9,4 +9,5 @@ export async function fetchLeaveHistory({ signal }: { signal: AbortSignal }): Pr
         headers: { 'Content-Type': 'application/json', accept: '*/*' },
     });
     return res.data;
+
 }

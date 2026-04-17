@@ -71,7 +71,8 @@
         "stats": {
             "annualRemaining": "สิทธิ์คงเหลือ",
             "sickRemaining": "ใช้แล้ว",
-            "daysUsed": "สิทธิ์รวม"
+            "daysUsed": "สิทธิ์รวม",
+            "totalLabel": "ใช้ไปแล้ว"
         },
         "entitlements": {
             "title": "ความคืบหน้าสิทธิ์วันลา",

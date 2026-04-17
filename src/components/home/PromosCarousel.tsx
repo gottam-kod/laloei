@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SP, theme } from '../../theme/token';
 
-type Promo = { id: string; title: string; cover: string };
+export type Promo = { id: string; title: string; description: string, content: string; cover: string };
 type Props = { title?: string; items: Promo[] };
 export default function PromosCarousel({ title='บริการแนะนำ', items }: Props) {
   return (

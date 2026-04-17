@@ -6,18 +6,24 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
 type Insight = {
-  title: string;
+  titleTh: string;
+  titleEn: string;
+  title: string; // จะถูกเลือกตามภาษาปัจจุบัน
 };
 
 async function fetchInsights(lang: string, signal: AbortSignal, timeoutMs: number): Promise<string[]> {
   try {
-    const res = await instanceAxios.get<Insight[]>(`/insight?lang=${lang}`, {
+    const res = await instanceAxios.get<Insight[]>(`/insight?locale=${lang}`, {
       signal,
       timeout: timeoutMs,
       headers: { 'Content-Type': 'application/json', accept: '*/*' },
     });
 
-    const results = res.data.map(item => item.title);
+    const results = res.data.map(item => {
+      item.title = lang.startsWith('th') ? item.titleTh : item.titleEn;
+      return item.title;
+    });
+
     return results;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
@@ -27,6 +33,7 @@ async function fetchInsights(lang: string, signal: AbortSignal, timeoutMs: numbe
         (data as any)?.message ||
         (data as any)?.error ||
         (status === 401 ? 'Unauthorized' : err.message || 'Request failed');
+      console.log('fetchInsights error', message);
       throw new ApiError(message, status, data);
     }
     if (err?.name === 'AbortError') throw err; // ถูกยกเลิก

@@ -1,6 +1,6 @@
 // screens/LaloeiHome.tsx
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import ArticlesList from '@/src/components/home/ArticlesList';
 import GreetingInsight from '@/src/components/home/GreetingInsight';
 import HeaderBar from '@/src/components/home/HeaderBar';
-import PromosCarousel from '@/src/components/home/PromosCarousel';
+import PromosCarousel, { Promo } from '@/src/components/home/PromosCarousel';
 import QuickAllModal from '@/src/components/home/QuickAllModal';
 import QuickGrid, { QuickItem } from '@/src/components/home/QuickGrid';
 import ScoreBar from '@/src/components/home/ScoreBar';
@@ -24,6 +24,7 @@ import { useAuthStore, useUserRole } from '@/src/store/useAuthStore';
 
 import { COLOR, SP } from '@/src/theme/token';
 import LeaveSmartCard, { SmartLeave } from './components/LeaveSmartCard';
+import { useGetArticles, useGetPromo } from '@/src/hooks/home/useGetContant';
 
 /* =========================
  * Config / Constants
@@ -51,15 +52,18 @@ const QUICK_BASE: QuickItem[] = [
   { key: 'MENU_NOTIFICATION', label: 'แจ้งเตือน', icon: 'notifications-outline', color: '#64748B' },
 ];
 
-const PROMOS = [
-  { id: 'p1', title: 'ตั้งสิทธิ์ลาองค์กรยืดหยุ่น', cover: 'https://picsum.photos/seed/l9a/420/240' },
-  { id: 'p2', title: 'รายงานสรุปทันใจ', cover: 'https://picsum.photos/seed/l9b/420/240' },
-];
+// const PROMOS = [
+//   { id: 'p1', title: 'ตั้งสิทธิ์ลาองค์กรยืดหยุ่น', cover: 'https://picsum.photos/seed/l9a/420/240' },
+//   { id: 'p2', title: 'รายงานสรุปทันใจ', cover: 'https://picsum.photos/seed/l9b/420/240' },
+// ];
 
-const ARTICLES = [
-  { id: 'a1', title: 'จัดตารางลาให้ทีมไม่สะดุด', cover: 'https://picsum.photos/seed/l9c/640/360' },
-  { id: 'a2', title: 'เริ่มต้น HR Analytics ยังไง', cover: 'https://picsum.photos/seed/l9d/640/360' },
-];
+// const ARTICLES = [
+//   { id: 'a1', title: 'จัดตารางลาให้ทีมไม่สะดุด', cover: 'https://picsum.photos/seed/l9c/640/360' },
+//   { id: 'a2', title: 'เริ่มต้น HR Analytics ยังไง', cover: 'https://picsum.photos/seed/l9d/640/360' },
+// ];
+
+const PROMOS: Promo[] = [];
+const ARTICLES: Promo[] = [];
 
 /* =========================
  * Utils
@@ -93,13 +97,15 @@ export default function LaloeiHome() {
     annualRemaining: t('dashboard.stats.annualRemaining'), // เหลือ
     sickRemaining: t('dashboard.stats.sickRemaining'),   // ลาป่วยคงเหลือ
     daysUsed: t('dashboard.stats.daysUsed'),        // ใช้ไป
-    totalLabel: t('dashboard.stats.total'),           // รวม (เพิ่มคีย์นี้ใน i18n)
+    totalLabel: t('dashboard.stats.totalLabel'),           // รวม (เพิ่มคีย์นี้ใน i18n)
   }), [t, i18n.language]);
 
   /* ---------- API data ---------- */
   const { data: leaveHistory = [] } = useGetLeaveHistory(profile.id, { enabled: !!profile.id });
   const { data: leaveSummaryApi } = useGetLeaveSummary({ enabled: true });
   const { data: insights = [] } = useGetInsights({ enabled: true });
+  const { data: contantpromos = [] } = useGetPromo({ enabled: true });
+  const { data: contantarticles = [] } = useGetArticles({ enabled: true });
 
   const leaveSummary = leaveSummaryApi ?? { left: 0, used: 0, total: 0 };
 
@@ -132,8 +138,25 @@ export default function LaloeiHome() {
   const randomInsight = useMemo(() => {
     if (!insights || insights.length === 0) return '';
     const idx = Math.floor(Math.random() * insights.length);
-    return insights[idx];
+    return insights[idx].replace('<number>', leaveSummary.left.toString());
   }, [insights]);
+
+  const PROMOS = useMemo(() => contantpromos.map(item => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    content: item.content,
+    cover: `https://picsum.photos/seed/${item.id}/420/240`, //  slug หรือ id ก็ได้
+  })), [contantpromos]);
+
+  const ARTICLES = useMemo(() => contantarticles.map(item => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    content: item.content,
+    cover: `https://picsum.photos/seed/${item.id}/420/240`, // slug หรือ id ก็ได้
+  })), [contantarticles]);
+
 
   /* ---------- Actions (รวมทุกปุ่ม) ---------- */
   const { onQuickPress: quickActionFromHook } = useQuickActions({ openAllMenu: () => openModal() });

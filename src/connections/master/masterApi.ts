@@ -12,6 +12,7 @@ export async function fetchLeaveTypes(
       signal,
       timeout: timeoutMs,
     });
+    console.log('fetchLeaveTypes success', res.data);
     return res.data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
@@ -21,6 +22,7 @@ export async function fetchLeaveTypes(
         (data as any)?.message ||
         (data as any)?.error ||
         (status === 401 ? 'Unauthorized' : err.message || 'Request failed');
+      console.log('fetchLeaveTypes error', message);
       throw new ApiError(message, status, data);
     }
     if (err?.name === 'AbortError') throw err; // ถูกยกเลิก

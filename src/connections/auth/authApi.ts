@@ -17,6 +17,7 @@ export async function loginWithEmail(
     const res = await instanceAxios.post<LoginResponse>('/auth/login', payload, {
       signal, timeout: timeoutMs, headers: { accept: '*/*' },
     });
+    console.log('loginWithEmail success', res.data);
     globalThis.__AUTH_TOKEN__ = res.data.access_token;
     await AsyncStorage.setItem(CONSTANTS.STORAGE_KEY_TOKEN, res.data.access_token);
     return res.data;

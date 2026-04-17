@@ -17,12 +17,14 @@ export function registerTokenProvider(fn: () => Promise<string | null>) {
   getToken = fn;
 }
 
+
 instanceAxios.interceptors.request.use(async (config) => {
   const token =
     (await (getToken?.() ?? Promise.resolve(null))) ??
     globalThis.__AUTH_TOKEN__ ??
     null;
 
+console.log('Attaching token to request:', token);
   if (token) {
     config.headers = {
       ...(config.headers ?? {}),
